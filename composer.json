@@ -1,0 +1,29 @@
+{
+  "name": "northrook/core-symfony",
+  "description": "Core Symfony integration.",
+  "type": "library",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Martin",
+      "email": "mn@northrook.com"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "Core\\Symfony\\": "src/"
+    }
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true,
+  "require": {
+    "php": ">=8.3"
+  },
+  "require-dev": {
+    "northrook/core-framework": "dev-main",
+    "northrook/dev-env": "dev-main"
+  },
+  "scripts": {
+    "phpstan": "vendor/bin/phpstan analyse"
+  }
+}
