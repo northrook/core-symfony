@@ -31,7 +31,7 @@ abstract class CompilerPass implements CompilerPassInterface
 
     final public function process( ContainerBuilder $container ) : void
     {
-        $this->console          = new SymfonyStyle( new StringInput( null ), new ConsoleOutput() );
+        $this->console          = new SymfonyStyle( new StringInput( '' ), new ConsoleOutput() );
         $this->parameterBag     = $container->getParameterBag();
         $this->projectDirectory = $this->setProjectDirectory();
 
