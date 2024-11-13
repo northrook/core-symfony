@@ -8,7 +8,7 @@ use Northrook\Logger\Log;
 use Symfony\Component\HttpFoundation\Request;
 use function Support\get_class_name;
 
-abstract class ResponseEventListener
+abstract class ResponseEventListener implements ServiceContainerInterface
 {
 
     public function __construct()
