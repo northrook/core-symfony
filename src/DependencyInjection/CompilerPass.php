@@ -2,10 +2,9 @@
 
 namespace Core\Symfony\DependencyInjection;
 
-use Core\Framework\Pathfinder;
-use Core\Symfony\Console\Output;
-use JetBrains\PhpStorm\Language;
 use Northrook\Filesystem\Path;
+use JetBrains\PhpStorm\Language;
+use Support\Normalize;
 use Support\Time;
 use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\ConsoleOutput;
@@ -93,7 +92,7 @@ abstract class CompilerPass implements CompilerPassInterface
                 && \is_writable( $projectDirectory ),
         );
 
-        return Pathfinder::normalize( $projectDirectory );
+        return Normalize::path( $projectDirectory );
     }
 
     private function parsePhpString(
