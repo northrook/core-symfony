@@ -11,6 +11,7 @@ use function Support\get_class_name;
 abstract class ResponseEventListener implements ServiceContainerInterface
 {
 
+    // TODO : Provide an in-memory/file cache for handleController and other simple calls
     public function __construct()
     {
         Clerk::event(__METHOD__, $this::class);
@@ -37,6 +38,12 @@ abstract class ResponseEventListener implements ServiceContainerInterface
             return false;
         }
 
-        return \is_subclass_of(get_class_name($_controller, true), ServiceContainerInterface::class);
+        $controller = get_class_name($_controller);
+
+        if (!$controller || !class_exists($controller)) {
+            return false;
+        }
+
+        return \is_subclass_of($controller, ServiceContainerInterface::class);
     }
 }

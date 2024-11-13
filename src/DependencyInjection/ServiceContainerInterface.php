@@ -1,6 +1,6 @@
 <?php
 
-declare( strict_types = 1 );
+declare(strict_types = 1);
 
 namespace Core\Symfony\DependencyInjection;
 
@@ -18,5 +18,5 @@ interface ServiceContainerInterface
      * @return void
      */
     #[Required]
-    public function setServiceLocator( ServiceLocator $serviceLocator ) : void;
+    public function setServiceLocator(ServiceLocator $serviceLocator) : void;
 }
