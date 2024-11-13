@@ -17,7 +17,14 @@
   "minimum-stability": "dev",
   "prefer-stable": true,
   "require": {
-    "php": ">=8.3"
+    "php": ">=8.3",
+    "symfony/http-kernel": "^7.1",
+    "northrook/filesystem": "dev-main",
+    "northrook/support": "dev-main",
+    "symfony/dependency-injection": "^7.1",
+    "symfony/yaml": "^7.1",
+    "northrook/logger": "dev-main",
+    "northrook/clerk": "dev-main"
   },
   "require-dev": {
     "northrook/dev-env": "dev-main"
