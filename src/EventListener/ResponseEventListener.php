@@ -10,7 +10,7 @@ use function Support\get_class_name;
 
 abstract class ResponseEventListener implements ServiceContainerInterface
 {
-    protected readonly ?string $controller;
+    private readonly ?string $controller;
 
     // TODO : Provide an in-memory/file cache for handleController and other simple calls
     public function __construct()
@@ -28,6 +28,10 @@ abstract class ResponseEventListener implements ServiceContainerInterface
     final protected function handleController(Request $request) : bool
     {
         Clerk::event(__METHOD__, $this::class);
+
+        if ($request->attributes->has('exception')) {
+            return false;
+        }
 
         if (!isset($this->controller)) {
             $_controller = $request->attributes->get('_controller');
