@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection PhpClassCanBeReadonlyInspection */
 
 namespace Core\Symfony\DependencyInjection;
 

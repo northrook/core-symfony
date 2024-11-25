@@ -23,6 +23,11 @@ parameters:
 		-
 			message: "#Class .+ has an uninitialized readonly property .+ Assign it in the constructor.#"
 			path: *.php
+
 		-
 			message: "#Method .+ should return .+ but returns mixed.#"
+			path: *.php
+
+		-
+			message: "#Trait Core\\\\Symfony.+ is used zero times .+#"
 			path: *.php
