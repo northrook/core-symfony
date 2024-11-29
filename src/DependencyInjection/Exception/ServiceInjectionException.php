@@ -19,8 +19,8 @@ class ServiceInjectionException extends InvalidArgumentException implements NotF
     public function __construct(
         public readonly string $property,
         public readonly string $id,
-        ?string                 $message = null,
-        ?Throwable              $previous = null,
+        ?string                $message = null,
+        ?Throwable             $previous = null,
     ) {
         $message ??= $this->getMessage();
 
