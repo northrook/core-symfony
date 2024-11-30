@@ -27,6 +27,7 @@
     "northrook/clerk": "dev-main"
   },
   "require-dev": {
+    "symfony/framework-bundle": "^7.2",
     "northrook/dev-env": "dev-main"
   },
   "scripts": {
