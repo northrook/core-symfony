@@ -17,25 +17,14 @@ final class ParameterBagCollector extends AbstractDataCollector
     }
 
     #[Override]
-    public static function getTemplate() : string
-    {
-        $path = \dirname( __DIR__, 2 ).'/templates/profiler/parameter_bag.html.twig';
-        dump( $path );
-        return $path;
-    }
-
-    #[Override]
     public function collect( Request $request, Response $response, ?Throwable $exception = null ) : void
     {
         foreach ( $this->parameterBag->all() as $key => $value ) {
-            $this->data['items'] = [
+            $this->data[] = [
                 'label' => $key,
                 'value' => $this->paramter( $value ),
             ];
         }
-        \ob_start();
-        dump( $this->parameterBag );
-        $this->data['dump'] = \ob_get_clean();
     }
 
     public function getParameterCount() : int
@@ -48,12 +37,7 @@ final class ParameterBagCollector extends AbstractDataCollector
      */
     public function getParamterItems() : array
     {
-        return $this->data['items'];
-    }
-
-    public function getParamterDump() : string
-    {
-        return $this->data['dump'];
+        return $this->data;
     }
 
     private function paramter( mixed $value ) : string
