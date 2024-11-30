@@ -19,6 +19,7 @@ interface SettingsInterface
      * If a no setting is found, but a valid `set` key and `value` is provided, and given the current `user` has relevant permissions, the Setting will be set and saved.
      *
      * @param string                         $setting
+     * @param mixed                          $default
      * @param ?string                        $set
      * @param array<string, Setting>|Setting $value
      *
@@ -28,8 +29,9 @@ interface SettingsInterface
      */
     public function get(
         string                                    $setting,
+        mixed                                     $default = null,
         ?string                                   $set = null,
-        array|bool|string|int|float|UnitEnum|null $value = null,
+        UnitEnum|float|int|bool|array|string|null $value = null,
     ) : mixed;
 
     /**
