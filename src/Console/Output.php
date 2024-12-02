@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Core\Symfony\Console;
 
+use Symfony\Component\Console\Helper\FormatterHelper;
 use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Style\SymfonyStyle;
@@ -90,6 +91,18 @@ final class Output
     public static function caution( string ...$message ) : void
     {
         Output::print()->caution( $message );
+    }
+
+    /**
+     * @param string|string[] $message
+     * @param string          $style
+     * @param bool            $large
+     *
+     * @return string
+     */
+    public static function format( string|array $message, string $style, bool $large = false ) : string
+    {
+        return ( new FormatterHelper() )->formatBlock( $message, $style, $large );
     }
 
     public static function print() : SymfonyStyle
