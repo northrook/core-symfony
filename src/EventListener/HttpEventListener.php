@@ -28,10 +28,10 @@ abstract class HttpEventListener implements EventSubscriberInterface, ServiceCon
     private array $events = [];
 
     // TODO : Provide an in-memory/file cache for handleController and other simple calls
-    final public function __construct()
+    final public function __construct( protected readonly Clerk $clerk )
     {
         $this->listenerId = $this::class.'::'.\spl_object_hash( $this );
-        Clerk::event( __METHOD__, $this::class );
+        $this->clerk::event( __METHOD__, $this->listenerId );
         Log::notice( __METHOD__.' does this adopt [monolog.tags]?' );
     }
 
@@ -46,7 +46,7 @@ abstract class HttpEventListener implements EventSubscriberInterface, ServiceCon
         $this->eventId = $event::class.'::'.\spl_object_id( $event );
 
         $this->events[][$this->eventId] = $event::class;
-        Clerk::event( __METHOD__, $this->eventId );
+        $this->clerk::event( __METHOD__, $this->eventId );
 
         // Check if the `$event` itself should be skipped outright.
         foreach ( $skip as $kernelEvent ) {
@@ -57,7 +57,7 @@ abstract class HttpEventListener implements EventSubscriberInterface, ServiceCon
 
         dump( $event );
 
-        return $this->cache[$this->eventId] ??= ( function() use ( $event ) : bool {
+        return ! $this->cache[$this->eventId] ??= ( function() use ( $event ) : bool {
             //
             // Get the _controller attribute from the Request object
             $controller = $event->getRequest()->attributes->get( '_controller' );
