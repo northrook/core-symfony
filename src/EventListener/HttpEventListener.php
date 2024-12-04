@@ -10,7 +10,7 @@ use Northrook\Logger\Log;
 use Core\Symfony\DependencyInjection\{ServiceContainer, ServiceContainerInterface};
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\{ExceptionEvent, KernelEvent};
-use function Support\{get_class_name};
+use function Support\{get_class_id, get_class_name};
 
 /**
  *
@@ -19,7 +19,7 @@ abstract class HttpEventListener implements EventSubscriberInterface, ServiceCon
 {
     use ServiceContainer;
 
-    private string $eventId;
+    protected string $eventId;
 
     protected readonly string $listenerId;
 
@@ -32,9 +32,9 @@ abstract class HttpEventListener implements EventSubscriberInterface, ServiceCon
     // TODO : Provide an in-memory/file cache for handleController and other simple calls
     final public function __construct( protected readonly Clerk $clerk )
     {
-        $this->listenerId = $this::class.'::'.\spl_object_hash( $this );
-        $this->clerk::event( __METHOD__, $this->listenerId );
-        Log::notice( __METHOD__.' does this adopt [monolog.tags]?' );
+        $this->listenerId = get_class_id( $this );
+        $this->clerk::event( $this->listenerId, 'http' );
+        Log::notice( $this->listenerId.' does this adopt [monolog.tags]?' );
     }
 
     /**
@@ -46,19 +46,23 @@ abstract class HttpEventListener implements EventSubscriberInterface, ServiceCon
     final protected function shouldSkip( KernelEvent $event, array $skip = [ExceptionEvent::class] ) : bool
     {
         $this->eventId = $event::class.'::'.\spl_object_id( $event );
+        $this->clerk::event( __METHOD__.'::'.$this->eventId, 'http' );
 
         $this->events[][$this->eventId] = $event::class;
-        $this->clerk::event( __METHOD__, $this->eventId );
 
         // Check if the `$event` itself should be skipped outright.
         foreach ( $skip as $kernelEvent ) {
             if ( $event instanceof $kernelEvent ) {
-                dump( [__METHOD__, $event] );
+                Log::info(
+                    '{method} skipped event {event}.',
+                    ['method' => __METHOD__, 'event' => $this->eventId],
+                );
+                $this->clerk::stop( __METHOD__.'::'.$this->eventId );
                 return true;
             }
         }
 
-        return ! $this->skipEventCache[$this->eventId] ??= ( function() use ( $event ) : bool {
+        $bool = $this->skipEventCache[$this->eventId] ??= ! ( function() use ( $event ) : bool {
             //
             // Get the _controller attribute from the Request object
             $controller = $event->getRequest()->attributes->get( '_controller' );
@@ -83,5 +87,8 @@ abstract class HttpEventListener implements EventSubscriberInterface, ServiceCon
 
             return \is_subclass_of( $controller, ServiceContainerInterface::class );
         } )();
+
+        $this->clerk::stop( __METHOD__.'::'.$this->eventId );
+        return $bool;
     }
 }
