@@ -23,8 +23,10 @@ abstract class HttpEventListener implements EventSubscriberInterface, ServiceCon
 
     protected readonly string $listenerId;
 
-    private array $cache = [];
+    /** @var array<string, bool> */
+    private array $skipEventCache = [];
 
+    /** @var array<int, array<string, class-string>> */
     private array $events = [];
 
     // TODO : Provide an in-memory/file cache for handleController and other simple calls
@@ -51,13 +53,12 @@ abstract class HttpEventListener implements EventSubscriberInterface, ServiceCon
         // Check if the `$event` itself should be skipped outright.
         foreach ( $skip as $kernelEvent ) {
             if ( $event instanceof $kernelEvent ) {
+                dump( [__METHOD__, $event] );
                 return true;
             }
         }
 
-        dump( $event );
-
-        return ! $this->cache[$this->eventId] ??= ( function() use ( $event ) : bool {
+        return ! $this->skipEventCache[$this->eventId] ??= ( function() use ( $event ) : bool {
             //
             // Get the _controller attribute from the Request object
             $controller = $event->getRequest()->attributes->get( '_controller' );
