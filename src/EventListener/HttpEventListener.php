@@ -21,7 +21,7 @@ abstract class HttpEventListener implements EventSubscriberInterface, ServiceCon
 
     private string $eventId;
 
-    private string $listenerId;
+    protected readonly string $listenerId;
 
     private array $cache = [];
 
