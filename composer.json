@@ -18,17 +18,17 @@
   "prefer-stable": true,
   "require": {
     "php": ">=8.3",
-    "symfony/http-kernel": "^7.1",
+    "symfony/http-kernel": "@stable",
     "northrook/filesystem": "dev-main",
     "northrook/support": "dev-main",
-    "symfony/dependency-injection": "^7.1",
-    "symfony/yaml": "^7.1",
+    "symfony/dependency-injection": "@stable",
+    "symfony/yaml": "@stable",
     "northrook/logger": "dev-main",
     "northrook/clerk": "dev-main",
-    "symfony/cache": "^7.2"
+    "symfony/cache": "@stable"
   },
   "require-dev": {
-    "symfony/framework-bundle": "^7.2",
+    "symfony/framework-bundle": "@stable",
     "northrook/dev-env": "dev-main"
   },
   "scripts": {
