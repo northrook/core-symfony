@@ -10,6 +10,7 @@ use Northrook\Logger\Log;
 use Core\Symfony\DependencyInjection\{ServiceContainer, ServiceContainerInterface};
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\{ExceptionEvent, KernelEvent};
+use function Cache\memoize;
 use function Support\{get_class_id, get_class_name};
 
 /**
@@ -23,14 +24,10 @@ abstract class HttpEventListener implements EventSubscriberInterface, ServiceCon
 
     protected readonly string $listenerId;
 
-    /** @var array<string, bool> */
-    private array $skipEventCache = [];
+    /** @var class-string<ServiceContainerInterface>|false */
+    protected string|false $controller;
 
-    /** @var array<int, array<string, class-string>> */
-    private array $events = [];
-
-    // TODO : Provide an in-memory/file cache for handleController and other simple calls
-    final public function __construct( protected readonly Clerk $clerk )
+    public function __construct( protected readonly Clerk $clerk )
     {
         $this->listenerId = get_class_id( $this );
         $this->clerk::event( $this->listenerId, 'http' );
@@ -48,47 +45,50 @@ abstract class HttpEventListener implements EventSubscriberInterface, ServiceCon
         $this->eventId = $event::class.'::'.\spl_object_id( $event );
         $this->clerk::event( __METHOD__.'::'.$this->eventId, 'http' );
 
-        $this->events[][$this->eventId] = $event::class;
+        $this->controller = memoize(
+            function() use ( $skip, $event ) : string|false {
+                // Check if the `$event` itself should be skipped outright.
+                foreach ( $skip as $kernelEvent ) {
+                    if ( $event instanceof $kernelEvent ) {
+                        Log::info(
+                            '{method} skipped event {event}.',
+                            ['method' => __METHOD__, 'event' => $this->eventId],
+                        );
+                        return false;
+                    }
+                }
 
-        // Check if the `$event` itself should be skipped outright.
-        foreach ( $skip as $kernelEvent ) {
-            if ( $event instanceof $kernelEvent ) {
-                Log::info(
-                    '{method} skipped event {event}.',
-                    ['method' => __METHOD__, 'event' => $this->eventId],
-                );
-                $this->clerk::stop( __METHOD__.'::'.$this->eventId );
-                return true;
-            }
-        }
+                //
+                // Get the _controller attribute from the Request object
+                $controller = $event->getRequest()->attributes->get( '_controller' );
 
-        $bool = $this->skipEventCache[$this->eventId] ??= ! ( function() use ( $event ) : bool {
-            //
-            // Get the _controller attribute from the Request object
-            $controller = $event->getRequest()->attributes->get( '_controller' );
+                // We can safely skip early if the `_controller` is anything but a string
+                if ( ! $controller || ! \is_string( $controller ) ) {
+                    Log::warning(
+                        '{method} Controller attribute was expected be a string. Returning {false}.',
+                        ['method' => __METHOD__],
+                    );
+                    return false;
+                }
 
-            // We can safely skip early if the `_controller` is anything but a string
-            if ( ! $controller || ! \is_string( $controller ) ) {
-                Log::warning(
-                    '{method} Controller attribute was expected be a string. Returning {false}.',
-                    ['method' => __METHOD__],
-                );
-                return false;
-            }
+                // Resolve the `$controller` to a class-string and ensure it exists
+                try {
+                    $controller = get_class_name( $controller, true );
+                }
+                catch ( InvalidArgumentException $classValidationException ) {
+                    Log::exception( $classValidationException );
+                    return false;
+                }
 
-            // Resolve the `$controller` to a class-string and ensure it exists
-            try {
-                $controller = get_class_name( $controller, true );
-            }
-            catch ( InvalidArgumentException $classValidationException ) {
-                Log::exception( $classValidationException );
-                return false;
-            }
-
-            return \is_subclass_of( $controller, ServiceContainerInterface::class );
-        } )();
+                return \is_subclass_of( $controller, ServiceContainerInterface::class )
+                        ? $controller
+                        : false;
+            },
+            $this->eventId,
+        );
 
         $this->clerk::stop( __METHOD__.'::'.$this->eventId );
-        return $bool;
+
+        return ! $this->controller;
     }
 }
