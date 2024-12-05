@@ -50,7 +50,7 @@ abstract class HttpEventListener implements EventSubscriberInterface, ServiceCon
         $this->clerk::event( $eventId, 'http' );
 
         [$this->controller, $this->action] = memoize(
-            callback : function() use ( $skip, $event ) : array {
+            callback    : function() use ( $skip, $event ) : array {
                 // Check if the `$event` itself should be skipped outright.
                 foreach ( $skip as $kernelEvent ) {
                     if ( $event instanceof $kernelEvent ) {
@@ -89,14 +89,14 @@ abstract class HttpEventListener implements EventSubscriberInterface, ServiceCon
                 }
                 return [false, false];
             },
-            key      : \implode(
-                '::',
+            key         : \Cache\key(
                 [
                     __METHOD__,
                     $event->getRequest()->attributes->get( '_route', $eventId ),
                     ...$skip,
                 ],
             ),
+            persistence : \Cache\FOREVER,
         );
 
         $this->clerk::stop( $eventId );
