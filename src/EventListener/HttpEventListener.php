@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace Core\Symfony\EventListener;
 
-use Cache;
-use InvalidArgumentException;
+use Cache, InvalidArgumentException;
 use Northrook\Clerk;
-use Northrook\Logger\Log;
+use Psr\Log\LoggerInterface;
 use Core\Symfony\DependencyInjection\{ServiceContainer, ServiceContainerInterface};
 use Symfony\Component\Cache\Adapter\{ArrayAdapter};
 use Support\Normalize;
@@ -16,7 +15,7 @@ use Closure;
 use Throwable;
 use Symfony\Component\HttpKernel\Event\{ExceptionEvent, KernelEvent};
 use Symfony\Contracts\Cache\{CacheInterface, ItemInterface};
-use function Support\{classBasename, explode_class_callable, get_class_id};
+use function Support\{classBasename, explode_class_callable};
 use function String\hashKey;
 
 /**
@@ -40,15 +39,16 @@ abstract class HttpEventListener implements EventSubscriberInterface, ServiceCon
     protected string $route;
 
     public function __construct(
-        protected readonly Clerk $clerk,
-        ?CacheInterface          $cache = null,
+        protected readonly Clerk            $clerk,
+        ?CacheInterface                     $cache = null,
+        protected readonly ?LoggerInterface $logger = null,
     ) {
         if ( $cache ) {
             $this->httpEventCache = $cache;
         }
         $this->listenerId = classBasename( $this::class );
         $this->clerk::event( $this->listenerId, 'http' );
-        Log::notice( $this->listenerId.' does this adopt [monolog.tags]?' );
+        $this->logger?->notice( $this->listenerId.' does this adopt [monolog.tags]?' );
     }
 
     /**
@@ -70,7 +70,7 @@ abstract class HttpEventListener implements EventSubscriberInterface, ServiceCon
         $this->route = (string) $event->getRequest()->attributes->get( '_route', '' );
 
         if ( ! $this->route ) {
-            Log::alert(
+            $this->logger?->alert(
                 'Expected a {_route} parameter, but none was found.',
                 ['requestAttributes' => $event->getRequest()->attributes->all()],
             );
@@ -78,14 +78,19 @@ abstract class HttpEventListener implements EventSubscriberInterface, ServiceCon
         }
 
         [$this->controller, $this->action] = $this->cache(
-            'shouldShip.'.hashKey( $skip ),
+            'skip.event.'.hashKey( $skip ),
             function() use ( $skip, $event ) : array {
                 // Check if the `$event` itself should be skipped outright.
                 foreach ( $skip as $kernelEvent ) {
                     if ( $event instanceof $kernelEvent ) {
-                        Log::info(
+                        $this->logger?->info(
                             '{method} skipped event {event}.',
-                            ['method' => __METHOD__, 'event' => get_class_id( $event )],
+                            [
+                                'method' => __METHOD__,
+                                'event'  => 'HttpEventListener::shouldSkip( '.classBasename(
+                                    $event,
+                                ).' )',
+                            ],
                         );
                         return [false, false];
                     }
@@ -97,7 +102,7 @@ abstract class HttpEventListener implements EventSubscriberInterface, ServiceCon
 
                 // We can safely skip early if the `_controller` is anything but a string
                 if ( ! $controller || ! \is_string( $controller ) ) {
-                    Log::warning(
+                    $this->logger?->warning(
                         '{method} Controller attribute was expected be a string. Returning {false}.',
                         ['method' => __METHOD__],
                     );
@@ -108,8 +113,11 @@ abstract class HttpEventListener implements EventSubscriberInterface, ServiceCon
                 try {
                     [$controller, $method] = explode_class_callable( $controller, true );
                 }
-                catch ( InvalidArgumentException $classValidationException ) {
-                    Log::exception( $classValidationException );
+                catch ( InvalidArgumentException $exception ) {
+                    $this->logger?->error(
+                        $exception->getMessage(),
+                        ['exception' => $exception],
+                    );
                     return [false, false];
                 }
 
@@ -149,11 +157,9 @@ abstract class HttpEventListener implements EventSubscriberInterface, ServiceCon
             'The '.__METHOD__.'( $key .. ) can only contain letters, numbers, and periods.',
         );
 
-        $key = Normalize::key( [$this->route, $key] );
-
         try {
             return $this->httpEventCache->get(
-                key      : Normalize::key( [$this->route, $key] ),
+                key      : Normalize::key( [$this->route, $key], '.' ),
                 callback : static function( ItemInterface $memo ) use ( $callback, $persistence ) : mixed {
                     $memo->expiresAfter( $persistence );
                     return $callback();
@@ -161,7 +167,7 @@ abstract class HttpEventListener implements EventSubscriberInterface, ServiceCon
             );
         }
         catch ( Throwable $exception ) {
-            Log::error(
+            $this->logger?->error(
                 'Exception thrown when using {runtime}: {message}.',
                 [
                     'runtime'   => $this::class,
