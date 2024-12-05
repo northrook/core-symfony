@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace Core\Symfony\EventListener;
 
+use Cache;
 use InvalidArgumentException;
 use Northrook\Clerk;
 use Northrook\Logger\Log;
 use Core\Symfony\DependencyInjection\{ServiceContainer, ServiceContainerInterface};
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\{ExceptionEvent, KernelEvent};
-use function Cache\memoize;
 use function Support\{explode_class_callable, get_class_id};
 
 /**
@@ -49,7 +49,7 @@ abstract class HttpEventListener implements EventSubscriberInterface, ServiceCon
 
         $this->clerk::event( $eventId, 'http' );
 
-        [$this->controller, $this->action] = memoize(
+        [$this->controller, $this->action] = Cache\memoize(
             callback    : function() use ( $skip, $event ) : array {
                 // Check if the `$event` itself should be skipped outright.
                 foreach ( $skip as $kernelEvent ) {
@@ -89,14 +89,14 @@ abstract class HttpEventListener implements EventSubscriberInterface, ServiceCon
                 }
                 return [false, false];
             },
-            key         : \Cache\key(
+            key         : Cache\key(
                 [
                     __METHOD__,
                     $event->getRequest()->attributes->get( '_route', $eventId ),
                     ...$skip,
                 ],
             ),
-            persistence : \Cache\FOREVER,
+            persistence : Cache\FOREVER,
         );
 
         $this->clerk::stop( $eventId );
