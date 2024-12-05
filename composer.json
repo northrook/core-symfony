@@ -24,7 +24,8 @@
     "symfony/dependency-injection": "^7.1",
     "symfony/yaml": "^7.1",
     "northrook/logger": "dev-main",
-    "northrook/clerk": "dev-main"
+    "northrook/clerk": "dev-main",
+    "symfony/cache": "^7.2"
   },
   "require-dev": {
     "symfony/framework-bundle": "^7.2",
