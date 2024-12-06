@@ -34,6 +34,24 @@ final class Output
     }
 
     /**
+     * @param array|string   $header
+     * @param array|string[] $row
+     *
+     * @return void
+     */
+    public static function table( string|array $header, array $row ) : void
+    {
+        foreach ( $row as $line => $value ) {
+            if ( \is_array( $value ) ) {
+                continue;
+            }
+            $row[$line] = [$value];
+        }
+
+        Output::print()->table( (array) $header, $row );
+    }
+
+    /**
      * @param string ...$message
      *
      * @return void
