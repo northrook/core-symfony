@@ -34,8 +34,8 @@ final class Output
     }
 
     /**
-     * @param array|string   $header
-     * @param array|string[] $row
+     * @param string|string[]      $header
+     * @param array<int, string[]> $row
      *
      * @return void
      */

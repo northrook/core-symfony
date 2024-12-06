@@ -48,7 +48,6 @@ abstract class HttpEventListener implements EventSubscriberInterface, ServiceCon
         }
         $this->listenerId = classBasename( $this::class );
         $this->clerk::event( $this->listenerId, 'http' );
-        $this->logger?->notice( $this->listenerId.' does this adopt [monolog.tags]?' );
     }
 
     /**
@@ -59,7 +58,7 @@ abstract class HttpEventListener implements EventSubscriberInterface, ServiceCon
      */
     final protected function shouldSkip( KernelEvent $event, array $skip = [ExceptionEvent::class] ) : bool
     {
-        $eventId = 'HttpEventListener::shouldSkip( '.classBasename( $event ).' )';
+        $eventId = $this->listenerId.'::shouldSkip( '.classBasename( $event ).' )';
         $this->clerk::event( $eventId, 'http' );
 
         // Only parse GET requests
@@ -77,20 +76,17 @@ abstract class HttpEventListener implements EventSubscriberInterface, ServiceCon
             return true;
         }
 
+        $cacheKey = 'skip.event.'.hashKey( $skip );
+
         [$this->controller, $this->action] = $this->cache(
-            'skip.event.'.hashKey( $skip ),
-            function() use ( $skip, $event ) : array {
+            $cacheKey,
+            function() use ( $skip, $event, $eventId ) : array {
                 // Check if the `$event` itself should be skipped outright.
                 foreach ( $skip as $kernelEvent ) {
                     if ( $event instanceof $kernelEvent ) {
                         $this->logger?->info(
-                            '{method} skipped event {event}.',
-                            [
-                                'method' => __METHOD__,
-                                'event'  => 'HttpEventListener::shouldSkip( '.classBasename(
-                                    $event,
-                                ).' )',
-                            ],
+                            '{method} skipped event {eventId}.',
+                            ['method' => __METHOD__, 'eventId' => $eventId],
                         );
                         return [false, false];
                     }
@@ -103,7 +99,7 @@ abstract class HttpEventListener implements EventSubscriberInterface, ServiceCon
                 // We can safely skip early if the `_controller` is anything but a string
                 if ( ! $controller || ! \is_string( $controller ) ) {
                     $this->logger?->warning(
-                        '{method} Controller attribute was expected be a string. Returning {false}.',
+                        '{method}: Controller attribute was expected be a string. Returning {false}.',
                         ['method' => __METHOD__],
                     );
                     return [false, false];
@@ -116,7 +112,7 @@ abstract class HttpEventListener implements EventSubscriberInterface, ServiceCon
                 catch ( InvalidArgumentException $exception ) {
                     $this->logger?->error(
                         $exception->getMessage(),
-                        ['exception' => $exception],
+                        ['exception' => $exception, 'eventId' => $eventId],
                     );
                     return [false, false];
                 }

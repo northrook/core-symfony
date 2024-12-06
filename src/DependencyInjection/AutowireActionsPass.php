@@ -20,14 +20,14 @@ final class AutowireActionsPass implements CompilerPassInterface
     {
         $registeredServices = [];
 
-        foreach ( $container->getDefinitions() as $id => $definition ) {
+        foreach ( $container->getDefinitions() as $definition ) {
             $service = $definition->getClass();
 
             if ( ! $service || \str_starts_with( $service, 'Symfony\\' ) ) {
                 continue;
             }
 
-            if ( \is_subclass_of( $service, ActionInterface::class, true ) ) {
+            if ( \is_subclass_of( $service, ActionInterface::class ) ) {
                 $definition->setAutowired( true );
                 $definition->addTag( 'controller.service_arguments' );
 
@@ -35,6 +35,8 @@ final class AutowireActionsPass implements CompilerPassInterface
             }
         }
 
-        Output::table( __METHOD__, $registeredServices );
+        if ( ! empty( $registeredServices ) ) {
+            Output::table( __METHOD__, $registeredServices );
+        }
     }
 }
