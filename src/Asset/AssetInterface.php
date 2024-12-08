@@ -2,19 +2,22 @@
 
 declare(strict_types=1);
 
-namespace Core\Symfony;
+namespace Core\Symfony\Asset;
 
 use Stringable, InvalidArgumentException;
 
 /**
- * @used-by \Core\Symfony\AssetLocatorInterface
+ * @used-by \Core\Symfony\Asset\AssetLocatorInterface
  *
  * @author  Martin Nielsen <mn@northrook.com>
  */
 interface AssetInterface
 {
-    public const string NAME = '';
-
+    /**
+     * Retrieve the `assetId`, a 16 character alphanumeric hash.
+     *
+     * @return string
+     */
     public function assetId() : string;
 
     /**
@@ -27,31 +30,6 @@ interface AssetInterface
     public function type( ?string $is = null ) : string|bool;
 
     /**
-     * Get the asset version.
-     *
-     * @return string
-     */
-    public function version() : string;
-
-    /**
-     * Assets can request to be `preloaded`.
-     *
-     * This can be used by external services to preload if possible.
-     *
-     * @return bool
-     */
-    public function preload() : bool;
-
-    /**
-     * Indicate that this `asset` prefers to be inlined.
-     *
-     * @param null|bool $set
-     *
-     * @return bool
-     */
-    public function inline( ?bool $set = null ) : bool;
-
-    /**
      * Returns fully resolved `HTML` of the asset.
      *
      * @return string|Stringable
@@ -59,7 +37,7 @@ interface AssetInterface
     public function getHtml() : string|Stringable;
 
     /**
-     * Returns the `URL` to this `asset`.
+     * Returns the `URL` to the `public` file.
      *
      * Local `assets` will return a relative `path`.
      *
@@ -68,7 +46,7 @@ interface AssetInterface
     public function getUrl() : string;
 
     /**
-     * Returns the relative or absolute `path` to this `asset`.
+     * Returns the relative or absolute `path` to the `public` file.
      *
      * @param bool $relative
      *
@@ -77,4 +55,11 @@ interface AssetInterface
      * @throws InvalidArgumentException if no local `asset` exists
      */
     public function getPath( bool $relative = true ) : string;
+
+    /**
+     * Get the asset version.
+     *
+     * @return string
+     */
+    public function version() : string;
 }

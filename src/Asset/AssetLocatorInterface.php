@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Core\Symfony;
+namespace Core\Symfony\Asset;
 
 use Psr\Log\LoggerInterface;
 use Symfony\Contracts\Cache\CacheInterface;
@@ -21,11 +21,11 @@ interface AssetLocatorInterface
     /**
      * Add one or more assets to be located when {@see self::getEnqueuedAssets} is called.
      *
-     * @param AssetInterface ...$asset
+     * @param AssetInterface|string ...$asset
      *
      * @return void
      */
-    public function enqueueAsset( AssetInterface ...$asset ) : void;
+    public function enqueueAsset( string|AssetInterface ...$asset ) : void;
 
     /**
      * Locate and return an {@see AssetInterface}.
