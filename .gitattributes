@@ -9,6 +9,7 @@ docs                    export-ignore
 .phpstorm.meta.php      export-ignore
 *.neon                  export-ignore
 phpunit.xml.dist        export-ignore
+phpbench.json           export-ignore
 
 # Auto detect text files and perform LF normalization
 * text=auto eol=lf
