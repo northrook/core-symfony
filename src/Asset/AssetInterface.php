@@ -7,9 +7,6 @@ namespace Core\Symfony\Asset;
 use Stringable;
 
 /**
- * @property-read string $name
- * @property-read string $assetID
- *
  * @used-by \Core\Symfony\Asset\AssetManagerInterface
  *
  * @author  Martin Nielsen <mn@northrook.com>
@@ -21,17 +18,16 @@ interface AssetInterface
      *
      * This class __only__ handles a fully resolved asset.
      *
-     * @param non-empty-string $name    [public]
-     * @param non-empty-string $assetID [public]
-     * @param non-empty-string $html    [private]
-     * @param Type             $type    [private]
+     * @param non-empty-string $name
+     * @param non-empty-string $assetID
+     * @param non-empty-string $html
+     * @param Type             $type
      */
-    public function __construct(
-        string $name,
-        string $assetID,
-        string $html,
-        Type   $type,
-    );
+    public function __construct( string $name, string $assetID, string $html, Type $type );
+
+    public function name() : string;
+
+    public function assetID() : string;
 
     /**
      * Returns the asset `type` by default.

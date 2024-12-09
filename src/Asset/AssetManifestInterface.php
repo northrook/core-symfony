@@ -18,7 +18,7 @@ interface AssetManifestInterface
     public function getRegisteredAssets() : array;
 
     /**
-     * Return an {@see AssetBlueprintInterface} if registered..
+     * Return an {@see AssetBlueprintInterface} if registered.
      *
      * @param string $asset
      *

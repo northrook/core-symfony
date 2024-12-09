@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace Core\Symfony\Asset;
 
-use SplFileInfo;
-
 use Support\Normalize;
 use function String\hashKey;
+use Stringable;
 
 abstract class AssetBlueprint implements AssetBlueprintInterface
 {
@@ -17,10 +16,10 @@ abstract class AssetBlueprint implements AssetBlueprintInterface
     public readonly array $sources;
 
     /**
-     * @param string                 $name
-     * @param SplFileInfo[]|string[] $sources
-     * @param Source                 $source
-     * @param Type                   $type
+     * @param string                $name
+     * @param string[]|Stringable[] $sources
+     * @param Source                $source
+     * @param Type                  $type
      */
     public function __construct(
         string                 $name,
@@ -38,19 +37,15 @@ abstract class AssetBlueprint implements AssetBlueprintInterface
     }
 
     /**
-     * @param SplFileInfo[]|string[] $sources
+     * @param string[]|Stringable[] $sources
      *
      * @return string[]
      */
     private function validateSources( array $sources ) : array
     {
         foreach ( $sources as $index => $path ) {
-            if ( $path instanceof SplFileInfo ) {
-                $sources[$index] = $path->getRealPath();
-            }
-            \assert( $sources[$index] );
+            $sources[$index] = (string) $path;
         }
-        /** @var string[] $sources */
         return $sources;
     }
 
