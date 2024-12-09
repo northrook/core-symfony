@@ -2,16 +2,14 @@
 
 namespace Core\Symfony\Asset;
 
-use Core\Symfony\Asset\Configuration\Source;
-
-interface ConfigurationInterface
+interface AssetConfigurationInterface
 {
     /**
      * Derived from assigned source.
      *
-     * @return string
+     * @return Type
      */
-    public function type() : string;
+    public function type() : Type;
 
     public function name() : string;
 

@@ -35,11 +35,12 @@ interface AssetInterface
     /**
      * @template Setting of array<string, mixed>|null|bool|float|int|string|\UnitEnum
      *
-     * @param SettingsInterface<Setting> $settings
+     * @param AssetConfigurationInterface $config
+     * @param SettingsInterface<Setting>  $settings
      *
      * @return string
      */
-    public function build( SettingsInterface $settings ) : string;
+    public function build( AssetConfigurationInterface $config, SettingsInterface $settings ) : string;
 
     /**
      * Retrieve the `assetId`, a 16 character alphanumeric hash.

@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Core\Symfony\Asset\Configuration;
 
-use Core\Symfony\Asset\ConfigurationInterface;
+use Core\Symfony\Asset\{AssetConfigurationInterface, Source};
 
-interface BundlerInterface extends ConfigurationInterface
+interface BundledAssetInterfaceAsset extends AssetConfigurationInterface
 {
     /**
      * @param string   $name          lowercase, ASCII letters, dot.separated
