@@ -14,12 +14,14 @@ use Stringable;
 interface AssetManagerInterface
 {
     /**
-     * @param null|LoggerInterface $logger
-     * @param null|CacheInterface  $cache
+     * @param AssetManifestInterface $manifest
+     * @param null|LoggerInterface   $logger
+     * @param null|CacheInterface    $cache
      */
     public function __construct(
-        ?LoggerInterface $logger = null,
-        ?CacheInterface  $cache = null,
+        AssetManifestInterface $manifest,
+        ?LoggerInterface       $logger = null,
+        ?CacheInterface        $cache = null,
     );
 
     /**

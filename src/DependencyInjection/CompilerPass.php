@@ -25,6 +25,14 @@ abstract class CompilerPass implements CompilerPassInterface
 
     public const array PLACEHOLDER_ARG = [];
 
+    public const array  PLACEHOLDER_ARRAY = [];
+
+    public const string PLACEHOLDER_STRING = '';
+
+    public const null   PLACEHOLDER_NULL = null;
+
+    public const int    PLACEHOLDER_INT = 0;
+
     protected readonly string $projectDirectory;
 
     protected readonly ParameterBagInterface $parameterBag;
@@ -32,6 +40,11 @@ abstract class CompilerPass implements CompilerPassInterface
     protected readonly SymfonyStyle $console;
 
     abstract public function compile( ContainerBuilder $container ) : void;
+
+    public static function placeholder( mixed $type ) : string
+    {
+        return \gettype( $type );
+    }
 
     final public function process( ContainerBuilder $container ) : void
     {
