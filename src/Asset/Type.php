@@ -134,8 +134,12 @@ enum Type
     case CHECKSUM;
     case ICON;
 
-    public static function from( string $string, bool $throwOnInvalid = false ) : ?static
+    public static function from( string|Type $string, bool $throwOnInvalid = false ) : ?static
     {
+        if ( $string instanceof self ) {
+            return $string;
+        }
+
         $type = Type::MAP[\trim( \strtolower( $string ), ". \n\r\t\v\0" )] ?? null;
         if ( ! $type && $throwOnInvalid ) {
             $message = "Could not derive asset type from string: '{$string}'.";

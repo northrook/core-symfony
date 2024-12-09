@@ -4,21 +4,20 @@ declare(strict_types=1);
 
 namespace Core\Symfony\Asset;
 
-use Interface\DataInterface;
 use Stringable;
 
 /**
  * @property-read string $name
  * @property-read string $assetID
  *
- * @used-by \Core\Symfony\Asset\AssetLocatorInterface
+ * @used-by \Core\Symfony\Asset\AssetManagerInterface
  *
  * @author  Martin Nielsen <mn@northrook.com>
  */
-interface AssetInterface extends DataInterface
+interface AssetInterface
 {
     /**
-     * Used when the {@see AssetLocatorInterface} is `calling` the `asset`.
+     * Used when the {@see AssetManagerInterface} is `calling` the `asset`.
      *
      * This class __only__ handles a fully resolved asset.
      *
