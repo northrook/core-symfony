@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Core\Symfony\Asset;
 
-use Core\Symfony\SettingsInterface;
 use Stringable, InvalidArgumentException;
 
 /**
@@ -20,27 +19,21 @@ interface AssetInterface
     /**
      * Used when the {@see AssetLocatorInterface} is `calling` the `asset`.
      *
-     * @param string      $name    lowercase, ASCII letters, dot.separated
-     * @param string[]    $source  one or more source files to use
-     * @param null|string $assetID [optional] manually set the `assetId`
-     * @param null|string $type    [internal] set by the implementing class
+     * This class __only__ handles a fully resolved asset.
+     *
+     * @param non-empty-lowercase-string                                   $name
+     * @param string[]                                                     $source     one or more source files to use
+     * @param Type                                                         $type
+     * @param array<string, null|array<array-key, string>|bool|int|string> $attributes
+     * @param null|string                                                  $assetID    [optional] manually set the `assetId`
      */
     public function __construct(
         string       $name,
         string|array $source,
+        Type         $type,
+        array        $attributes = [],
         ?string      $assetID = null,
-        ?string      $type = null,
     );
-
-    /**
-     * @template Setting of array<string, mixed>|null|bool|float|int|string|\UnitEnum
-     *
-     * @param AssetConfigurationInterface $config
-     * @param SettingsInterface<Setting>  $settings
-     *
-     * @return string
-     */
-    public function build( AssetConfigurationInterface $config, SettingsInterface $settings ) : string;
 
     /**
      * Retrieve the `assetId`, a 16 character alphanumeric hash.
@@ -52,11 +45,11 @@ interface AssetInterface
     /**
      * Returns the asset `type` by default.
      *
-     * @param null|string $is Check if the asset is of `type`
+     * @param null|string|Type $is
      *
-     * @return ( $is is string ? bool : string )
+     * @return ( $is is string ? bool : Type )
      */
-    public function type( ?string $is = null ) : string|bool;
+    public function type( null|string|Type $is = null ) : Type|bool;
 
     /**
      * Returns fully resolved `HTML` of the asset.

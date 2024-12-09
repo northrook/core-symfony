@@ -6,7 +6,7 @@ namespace Core\Symfony\Asset\Configuration;
 
 use Core\Symfony\Asset\{AssetConfigurationInterface, Source};
 
-interface BundledAssetInterfaceAsset extends AssetConfigurationInterface
+interface BundledAssetInterface extends AssetConfigurationInterface
 {
     /**
      * @param string   $name          lowercase, ASCII letters, dot.separated
@@ -14,16 +14,14 @@ interface BundledAssetInterfaceAsset extends AssetConfigurationInterface
      * @param Source   $sourceType
      * @param bool     $prefersInline
      * @param ?bool    $preload
-     *
-     * @return self
      */
-    public static function hydrate(
+    public function __construct(
         string       $name,
         string|array $sourcePath,
         Source       $sourceType,
         ?bool        $prefersInline = null,
         ?bool        $preload = null,
-    ) : self;
+    );
 
     /**
      * @return string[]
