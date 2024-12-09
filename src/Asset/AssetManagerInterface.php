@@ -15,11 +15,15 @@ interface AssetManagerInterface
 {
     /**
      * @param AssetManifestInterface $manifest
+     * @param string                 $assetBuildDirectory
+     * @param string                 $publicAssetDirectory
      * @param null|LoggerInterface   $logger
      * @param null|CacheInterface    $cache
      */
     public function __construct(
         AssetManifestInterface $manifest,
+        string                 $assetBuildDirectory,
+        string                 $publicAssetDirectory,
         ?LoggerInterface       $logger = null,
         ?CacheInterface        $cache = null,
     );
@@ -62,7 +66,7 @@ interface AssetManagerInterface
      *
      * @return array<string, string|Stringable>
      */
-    public function getResolvedAssets( bool $cached = true ) : array;
+    public function resolveEnquuedAssets( bool $cached = true ) : array;
 
     /**
      * Returns a list of all currently `enqueued` assets.
