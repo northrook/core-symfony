@@ -6,35 +6,23 @@ namespace Core\Symfony\Asset;
 
 interface AssetManifestInterface
 {
+    public function registerAsset( AssetBlueprintInterface $blueprint ) : void;
+
+    public function hasAsset( string $name ) : bool;
+
     /**
      * Returns only manually registered assets.
      *
-     * @return array
+     * @return AssetBlueprintInterface[]
      */
     public function getRegisteredAssets() : array;
 
     /**
-     * Returns all currently resolved assets.
-     *
-     * @return array
-     */
-    public function getResolvedAssets() : array;
-
-    /**
-     * Return an {@see AssetInterface} if cached in the `manifest`.
+     * Return an {@see AssetBlueprintInterface} if registered..
      *
      * @param string $asset
      *
-     * @return ?AssetInterface
+     * @return ?AssetBlueprintInterface
      */
-    public function getAsset( string $asset ) : ?AssetInterface;
-
-    /**
-     * Returns an array of configuration options as array. Null on failure.
-     *
-     * @param string $asset
-     *
-     * @return null|array{name : string, sources : string[], source : string, prefersInline : null|bool, preload : null|bool, type : string}
-     */
-    public function getRegisteredConfiguration( string $asset ) : ?array;
+    public function getAssetBlueprint( string $asset ) : ?AssetBlueprintInterface;
 }

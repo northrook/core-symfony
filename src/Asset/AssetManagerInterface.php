@@ -6,7 +6,6 @@ namespace Core\Symfony\Asset;
 
 use Psr\Log\LoggerInterface;
 use Symfony\Contracts\Cache\CacheInterface;
-use Stringable;
 
 /**
  * @author Martin Nielsen <mn@northrook.com>
@@ -46,16 +45,11 @@ interface AssetManagerInterface
      *
      * @param string $name
      *
+     * @param array<string, array<array-key|string>|string> $attributes
+     *
      * @return ?AssetInterface
      */
-    public function getAsset( string $name ) : ?AssetInterface;
-
-    /**
-     * @param string ...$name
-     *
-     * @return AssetInterface[]
-     */
-    public function getAssets( string ...$name ) : array;
+    public function renderAsset( string $name, array $attributes = [] ) : ?AssetInterface;
 
     /**
      * Returns an array all `enqueued` assets as `HTML` strings.
@@ -64,7 +58,7 @@ interface AssetManagerInterface
      *
      * @param bool $cached
      *
-     * @return array<string, string|Stringable>
+     * @return array<string, AssetInterface>
      */
     public function resolveEnquuedAssets( bool $cached = true ) : array;
 
