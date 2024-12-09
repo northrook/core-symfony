@@ -33,11 +33,11 @@ interface AssetBlueprintInterface
     ) : self;
 
     /**
-     * @param array<string, array<array-key|string>|string> $attributes
+     * @param null|array<string, array<array-key|string>|string> $attributes
      *
      * @return AssetInterface
      */
-    public function render( array $attributes = [] ) : AssetInterface;
+    public function render( ?array $attributes = null ) : AssetInterface;
 
     /**
      * Get the asset version.
