@@ -7,13 +7,20 @@ namespace Core\Symfony\Asset;
 use Psr\Log\LoggerInterface;
 use Symfony\Contracts\Cache\CacheInterface;
 use Stringable;
+use Closure;
 
 /**
  * @author Martin Nielsen <mn@northrook.com>
  */
 interface AssetLocatorInterface
 {
+    /**
+     * @param Closure():AssetManagerInterface $lazyAssetManager
+     * @param null|LoggerInterface            $logger
+     * @param null|CacheInterface             $cache
+     */
     public function __construct(
+        Closure          $lazyAssetManager,
         ?LoggerInterface $logger = null,
         ?CacheInterface  $cache = null,
     );
@@ -21,29 +28,31 @@ interface AssetLocatorInterface
     /**
      * Add one or more assets to be located when {@see self::getEnqueuedAssets} is called.
      *
-     * @param AssetInterface|string ...$asset
+     * @param string ...$name
      *
      * @return void
      */
-    public function enqueueAsset( string|AssetInterface ...$asset ) : void;
+    public function enqueueAsset( string ...$name ) : void;
 
     /**
      * Locate and return an {@see AssetInterface}.
      *
-     * Implementing classes *must* ensure `null` returns on missing `assets` are logged using the provided {@see LoggerInterface }.
+     * Should use the `$lazyAssetManager` to resolve assets as needed.
      *
-     * @param AssetInterface|string $asset Key as `string` or `AssetInterface`
+     * Implementing classes *must* ensure `null` returns on missing `assets` are logged using the provided {@see LoggerInterface}.
+     *
+     * @param string $name
      *
      * @return ?AssetInterface
      */
-    public function getAsset( string|AssetInterface $asset ) : ?AssetInterface;
+    public function getAsset( string $name ) : ?AssetInterface;
 
     /**
-     * @param AssetInterface|string ...$asset
+     * @param string ...$name
      *
      * @return AssetInterface[]
      */
-    public function getAssets( string|AssetInterface ...$asset ) : array;
+    public function getAssets( string ...$name ) : array;
 
     /**
      * Returns an array all `enqueued` assets as `HTML` strings.

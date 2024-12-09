@@ -3,6 +3,7 @@
 namespace Core\Symfony\Asset;
 
 use Core\Symfony\SettingsInterface;
+use InvalidArgumentException;
 
 interface AssetConfigurationInterface
 {
@@ -26,4 +27,22 @@ interface AssetConfigurationInterface
      * @return AssetInterface
      */
     public function build( SettingsInterface $settings, ?string $assetId = null ) : AssetInterface;
+
+    /**
+     * Get the asset version.
+     *
+     * @return string
+     */
+    public function version() : string;
+
+    /**
+     * Returns the relative or absolute `path` to the `public` file.
+     *
+     * @param bool $relative
+     *
+     * @return string
+     *
+     * @throws InvalidArgumentException if no local `asset` exists
+     */
+    public function getPath( bool $relative = true ) : string;
 }

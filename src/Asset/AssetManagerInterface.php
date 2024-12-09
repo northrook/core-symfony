@@ -4,7 +4,9 @@ namespace Core\Symfony\Asset;
 
 interface AssetManagerInterface
 {
-    public function __construct();
+    public function __construct(
+        array $registeredAssets = [],
+    );
 
-    public function getAssetConfiguration( string $name ) : AssetConfigurationInterface;
+    public function resolve( string $asset, ?string $assetClass = null ) : AssetConfigurationInterface;
 }
