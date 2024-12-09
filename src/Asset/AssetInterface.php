@@ -25,8 +25,14 @@ interface AssetInterface
      */
     public function __construct( string $name, string $assetID, string $html, Type $type );
 
+    /**
+     * @return string dot.separated lowercase
+     */
     public function name() : string;
 
+    /**
+     * @return string a 16 character hash
+     */
     public function assetID() : string;
 
     /**

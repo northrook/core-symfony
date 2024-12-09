@@ -5,14 +5,9 @@ namespace Core\Symfony\Asset;
 use Core\Symfony\SettingsInterface;
 use RuntimeException;
 
-/**
- * @property-read string   $name
- * @property-read string[] $sources
- * @property-read Source   $source
- * @property-read Type     $type
- */
 interface AssetBlueprintInterface
 {
+
     /**
      * @template Setting of array<string, mixed>|null|bool|float|int|string|\UnitEnum
      *
