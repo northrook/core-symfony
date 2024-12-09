@@ -21,8 +21,9 @@ interface AssetConfigurationInterface
      * @template Setting of array<string, mixed>|null|bool|float|int|string|\UnitEnum
      *
      * @param SettingsInterface<Setting> $settings
+     * @param ?string                    $assetId
      *
      * @return AssetInterface
      */
-    public function build( SettingsInterface $settings ) : AssetInterface;
+    public function build( SettingsInterface $settings, ?string $assetId = null ) : AssetInterface;
 }

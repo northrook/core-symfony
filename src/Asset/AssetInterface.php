@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace Core\Symfony\Asset;
 
+use Core\Symfony\{SettingsInterface};
 use Stringable, InvalidArgumentException;
+use UnitEnum;
 
 /**
  * @property-read string $name
  * @property-read string $type
+ * @property-read string $assetID
  *
  * @used-by \Core\Symfony\Asset\AssetLocatorInterface
  *
@@ -17,6 +20,8 @@ use Stringable, InvalidArgumentException;
 interface AssetInterface
 {
     /**
+     * @template Setting of array<string, mixed>|null|bool|float|int|string|UnitEnum
+     *
      * Used when the {@see AssetLocatorInterface} is `calling` the `asset`.
      *
      * This class __only__ handles a fully resolved asset.
@@ -25,22 +30,24 @@ interface AssetInterface
      * @param string[]                                                     $source     one or more source files to use
      * @param Type                                                         $type
      * @param array<string, null|array<array-key, string>|bool|int|string> $attributes
-     * @param null|string                                                  $assetID    [optional] manually set the `assetId`
+     * @param SettingsInterface<Setting>                                   $settings
+     * @param null|string                                                  $assetID    [optional] manually set the `assetID`
      */
     public function __construct(
-        string       $name,
-        string|array $source,
-        Type         $type,
-        array        $attributes = [],
-        ?string      $assetID = null,
+        string            $name,
+        string|array      $source,
+        Type              $type,
+        array             $attributes,
+        SettingsInterface $settings,
+        ?string           $assetID = null,
     );
 
     /**
-     * Retrieve the `assetId`, a 16 character alphanumeric hash.
+     * Retrieve the `assetID`, a 16 character alphanumeric hash.
      *
      * @return string
      */
-    public function assetId() : string;
+    public function assetID() : string;
 
     /**
      * Returns the asset `type` by default.
@@ -56,7 +63,7 @@ interface AssetInterface
      *
      * @return string|Stringable
      */
-    public function getHtml() : string|Stringable;
+    public function getHTML() : string|Stringable;
 
     /**
      * Returns the `URL` to the `public` file.
@@ -65,12 +72,12 @@ interface AssetInterface
      *
      * @return string
      */
-    public function getUrl() : string;
+    public function getURL() : string;
 
     /**
      * Returns an array of each `source`.
      *
-     * @return array
+     * @return string[]
      */
     public function getSources() : array;
 
