@@ -7,24 +7,23 @@ use RuntimeException;
 
 interface AssetBlueprintInterface
 {
-
     /**
      * @template Setting of array<string, mixed>|null|bool|float|int|string|\UnitEnum
      *
-     * @param string                     $assetBuildDirectory
-     * @param string                     $publicAssetDirectory
-     * @param SettingsInterface<Setting> $settings
-     * @param ?string                    $assetId
+     * @param string                      $assetBuildDirectory
+     * @param string                      $publicAssetDirectory
+     * @param ?SettingsInterface<Setting> $settings
+     * @param ?string                     $assetId
      *
      * @return self
      *
      * @throws RuntimeException
      */
     public function build(
-        string            $assetBuildDirectory,
-        string            $publicAssetDirectory,
-        SettingsInterface $settings,
-        ?string           $assetId = null,
+        string             $assetBuildDirectory,
+        string             $publicAssetDirectory,
+        ?SettingsInterface $settings = null,
+        ?string            $assetId = null,
     ) : self;
 
     /**

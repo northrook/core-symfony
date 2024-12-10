@@ -28,10 +28,10 @@ abstract class AssetBlueprint implements AssetBlueprintInterface
      * @param string|Type           $type
      */
     public function __construct(
-        string        $name,
-        array         $sources,
-        string|Source $source,
-        string|Type   $type,
+            string        $name,
+            array         $sources,
+            string|Source $source,
+            string|Type   $type,
     ) {
         $this->name    = $this->validateName( $name );
         $this->sources = $this->validateSources( $sources );
@@ -40,15 +40,28 @@ abstract class AssetBlueprint implements AssetBlueprintInterface
     }
 
     /**
+     * @param string                $name
+     * @param string[]|Stringable[] $sources
+     * @param Source|string         $source
+     *
+     * @return array{name: string, sources: string[], source: string, type: string}
+     */
+    abstract public static function register(
+            string        $name,
+            array         $sources,
+            string|Source $source,
+    ) : array;
+
+    /**
      * @return array{name: string, sources: string[], source: string, type: string}
      */
     final public function getConfiguration() : array
     {
         return [
-            'name'    => $this->name,
-            'sources' => $this->sources,
-            'source'  => $this->source->name,
-            'type'    => $this->type->name,
+                'name'    => $this->name,
+                'sources' => $this->sources,
+                'source'  => $this->source->name,
+                'type'    => $this->type->name,
         ];
     }
 
@@ -74,13 +87,15 @@ abstract class AssetBlueprint implements AssetBlueprintInterface
     final protected function assetID( ?string $assetID ) : string
     {
         $this->assetID = $assetID ?? hashKey(
-            [$this::class, $this->name, $this->type, $this->source, ...$this->sources],
-            'implode',
+                [$this::class, $this->name, $this->type->name, $this->source->name, ...$this->sources],
+                'implode',
         );
 
         \assert(
-            \strlen( $this->assetID ) === 16 && \ctype_alnum( $assetID ),
-            'Asset ID must be 16 alphanumeric characters long.',
+                \strlen( $this->assetID ) === 16 && \ctype_alnum( $this->assetID ),
+                'Asset ID must be 16 alphanumeric characters; ['.\strlen(
+                        $this->assetID,
+                )."] `{$this->assetID}` given",
         );
 
         return $this->assetID;

@@ -7,8 +7,11 @@ namespace Core\Symfony\DependencyInjection;
 use Core\Symfony\Console\Output;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use \Support\Interface\ActionInterface;
 
 /**
+ * Classes implementing the {@see ActionInterface} are automatically `autowired` and tagged with `controller.service_arguments`.
+ *
  * Finds all `definitions` implementing the {@see ActionInterface},
  * and ensures they are `autowired` and tagged with `controller.service_arguments`.
  *
@@ -18,6 +21,11 @@ final class AutowireActionsPass implements CompilerPassInterface
 {
     public function process( ContainerBuilder $container ) : void
     {
+        if ( ! \interface_exists( ActionInterface::class ) ) {
+            Output::note( "\Support\Interface\ActionInterface does not exist; ".__METHOD__.' skipped.' );
+            return;
+        }
+
         $registeredServices = [];
 
         foreach ( $container->getDefinitions() as $definition ) {
