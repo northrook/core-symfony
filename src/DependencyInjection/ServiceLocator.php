@@ -34,7 +34,7 @@ trait ServiceLocator
      * @param class-string<Service> $get
      * @param bool                  $nullable
      *
-     * @return null|Service
+     * @return ($nullable is true ? null|Service : Service)
      */
     final protected function serviceLocator( string $get, bool $nullable = false ) : mixed
     {

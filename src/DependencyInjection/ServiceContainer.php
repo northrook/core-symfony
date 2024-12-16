@@ -25,8 +25,10 @@ trait ServiceContainer
      */
     final protected function applicationEnvironment( ?string $is = null ) : string|bool
     {
-        $env   = (string) $this->getParameterBag()->get( 'kernel.environment' );
-        $debug = (bool) $this->getParameterBag()->get( 'kernel.debug' );
+        $env   = $this->getParameterBag()->get( 'kernel.environment' );
+        $debug = $this->getParameterBag()->get( 'kernel.debug' );
+
+        \assert( \is_string( $env ) && \is_bool( $debug ) );
 
         // Log a warning if debugging is enabled in production.
         if ( $debug && 'prod' === $env ) {
