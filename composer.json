@@ -18,13 +18,12 @@
   "prefer-stable": true,
   "require": {
     "php": ">=8.3",
-    "symfony/http-kernel": "@stable",
-    "northrook/filesystem": "dev-main",
     "northrook/support": "dev-main",
+    "northrook/clerk": "dev-main",
+    "northrook/logger": "dev-main",
+    "symfony/http-kernel": "@stable",
     "symfony/dependency-injection": "@stable",
     "symfony/yaml": "@stable",
-    "northrook/logger": "dev-main",
-    "northrook/clerk": "dev-main",
     "symfony/cache": "@stable"
   },
   "require-dev": {

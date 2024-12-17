@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Core\Symfony\DependencyInjection;
 
-use Core\Symfony\Console\Output;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use \Support\Interface\ActionInterface;
+use Core\Symfony\Console\Output;
+use Support\Interface\ActionInterface;
 
 /**
  * Classes implementing the {@see ActionInterface} are automatically `autowired` and tagged with `controller.service_arguments`.

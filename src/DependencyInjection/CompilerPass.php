@@ -4,9 +4,8 @@
 
 namespace Core\Symfony\DependencyInjection;
 
-use Northrook\Filesystem\Path;
 use JetBrains\PhpStorm\Language;
-use Support\{Normalize, Time};
+use Support\{FileInfo, Normalize, Time};
 use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Style\SymfonyStyle;
@@ -55,9 +54,9 @@ abstract class CompilerPass implements CompilerPassInterface
         $this->compile( $container );
     }
 
-    protected function path( string $fromProjectDir ) : Path
+    protected function path( string $fromProjectDir ) : FileInfo
     {
-        return new Path( "{$this->projectDirectory}/{$fromProjectDir}" );
+        return new FileInfo( "{$this->projectDirectory}/{$fromProjectDir}" );
     }
 
     /**
