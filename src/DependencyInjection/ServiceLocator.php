@@ -7,24 +7,15 @@ namespace Core\Symfony\DependencyInjection;
 use Core\Symfony\DependencyInjection\Exception\ServiceContainerException;
 use Northrook\Logger\Log;
 use Symfony\Component\HttpFoundation\{Request, RequestStack};
-use Symfony\Contracts\Service\Attribute\Required;
 use Symfony\Component\DependencyInjection as Symfony;
 use Throwable;
 
 /**
- * @phpstan-require-implements ServiceContainerInterface
- *
  * @author Martin Nielsen <mn@northrook.com>
  */
 trait ServiceLocator
 {
     protected readonly Symfony\ServiceLocator $serviceLocator;
-
-    #[Required]
-    final public function setServiceLocator( Symfony\ServiceLocator $serviceLocator ) : void
-    {
-        $this->serviceLocator = $serviceLocator;
-    }
 
     /**
      * @final
