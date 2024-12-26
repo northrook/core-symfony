@@ -16,6 +16,8 @@ trait SetServiceLocator
 {
     protected readonly Symfony\ServiceLocator $serviceLocator;
 
+    use ServiceLocator;
+
     #[Required]
     final public function setServiceLocator( Symfony\ServiceLocator $serviceLocator ) : void
     {

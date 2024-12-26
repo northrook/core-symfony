@@ -14,7 +14,7 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
  */
 trait ServiceContainer
 {
-    use ServiceLocator;
+    use SetServiceLocator;
 
     /**
      * @final
