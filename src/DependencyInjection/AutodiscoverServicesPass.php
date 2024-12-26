@@ -16,7 +16,7 @@ final class AutodiscoverServicesPass extends CompilerPass
     /** @var Autodiscover[] */
     protected array $autodiscover = [];
 
-    private function __construct()
+    public function __construct()
     {
         $this->autodiscoverAnnotatedClasses();
     }
