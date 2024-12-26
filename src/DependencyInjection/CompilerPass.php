@@ -12,6 +12,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Symfony\Component\Finder\Finder;
 use Symfony\Component\Yaml\Yaml;
 use UnexpectedValueException;
 use const Support\AUTO;
@@ -32,6 +33,8 @@ abstract class CompilerPass implements CompilerPassInterface
     public const null   PLACEHOLDER_NULL = null;
 
     public const int    PLACEHOLDER_INT = 0;
+
+    private readonly array $autodiscoveredClasses;
 
     protected readonly string $projectDirectory;
 
@@ -176,5 +179,36 @@ abstract class CompilerPass implements CompilerPassInterface
         \assert( \is_string( $content ) );
 
         return $content;
+    }
+
+    final protected function autodiscover() : array
+    {
+        $this->autodiscoveredClasses ??= $this->autodiscoverAnnotatedClasses();
+
+        return $this->autodiscoveredClasses;
+    }
+
+    private function autodiscoverAnnotatedClasses() : array
+    {
+        $classes = [];
+
+        $discover = new Finder();
+
+        $discover->files()->in( $this->projectDirectory )->name( '*.php' );
+
+        $discover->exclude(
+            [
+                'bin',
+                'public',
+                'vendor',
+                'var',
+            ],
+        );
+
+        foreach ( $discover as $file ) {
+            dump( $file->getRealPath() );
+        }
+
+        return $classes;
     }
 }
