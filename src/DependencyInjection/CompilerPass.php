@@ -14,6 +14,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Yaml\Yaml;
 use UnexpectedValueException;
+use const Support\AUTO;
 
 /**
  * Compiler pass abstraction layer for handling config files.
@@ -34,9 +35,11 @@ abstract class CompilerPass implements CompilerPassInterface
 
     protected readonly string $projectDirectory;
 
-    protected readonly ParameterBagInterface $parameterBag;
+    protected readonly ContainerBuilder $container;
 
     protected readonly SymfonyStyle $console;
+
+    protected readonly ParameterBagInterface $parameterBag;
 
     abstract public function compile( ContainerBuilder $container ) : void;
 
@@ -47,11 +50,37 @@ abstract class CompilerPass implements CompilerPassInterface
 
     final public function process( ContainerBuilder $container ) : void
     {
+        $this->container        = $container;
         $this->console          = new SymfonyStyle( new StringInput( '' ), new ConsoleOutput() );
         $this->parameterBag     = $container->getParameterBag();
         $this->projectDirectory = $this->setProjectDirectory();
 
         $this->compile( $container );
+    }
+
+    /**
+     * @param null|false|string[] $services [AUTO]
+     *
+     * @return array<int, class-string>
+     */
+    final protected function getDeclaredClasses( null|false|array $services = AUTO ) : array
+    {
+        if ( AUTO === $services ) {
+            $services = $this->container->getServiceIds();
+        }
+
+        if ( false === $services ) {
+            $services = [];
+        }
+
+        return \array_values(
+            \array_unique(
+                [
+                    ...\get_declared_classes(),
+                    ...\array_filter( $services, 'class_exists' ),
+                ],
+            ),
+        );
     }
 
     protected function path( string $fromProjectDir ) : FileInfo
