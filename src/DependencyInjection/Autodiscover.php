@@ -18,7 +18,7 @@ class Autodiscover
         public ?array            $tags = null,
         public ?array            $calls = null,
         public ?array            $bind = null,
-        public bool|string|null  $lazy = null,
+        public ?bool             $lazy = null,
         public ?bool             $public = null,
         public ?bool             $shared = null,
         public ?bool             $autowire = null,

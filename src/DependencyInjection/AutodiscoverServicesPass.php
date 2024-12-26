@@ -42,7 +42,7 @@ final class AutodiscoverServicesPass extends CompilerPass
             }
 
             if ( null !== $config->calls ) {
-                $definition->setMethodCalls( $config->tags );
+                $definition->setMethodCalls( $config->calls );
             }
 
             if ( null !== $config->bind ) {
