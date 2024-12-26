@@ -34,8 +34,6 @@ abstract class CompilerPass implements CompilerPassInterface
 
     public const int    PLACEHOLDER_INT = 0;
 
-    private readonly array $autodiscoveredClasses;
-
     protected readonly string $projectDirectory;
 
     protected readonly ContainerBuilder $container;
