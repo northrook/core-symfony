@@ -13,6 +13,7 @@ use Symfony\Component\Finder\Finder;
 use ReflectionAttribute;
 use LogicException;
 use Throwable;
+use BadMethodCallException;
 
 final class AutodiscoverServicesPass extends CompilerPass
 {
@@ -26,18 +27,58 @@ final class AutodiscoverServicesPass extends CompilerPass
     {
         $this->autodiscoverAnnotatedClasses();
 
-        foreach ( $this->autodiscover as $className => $autodiscover ) {
-            dump( $autodiscover );
-            // $serviceId = $autoconfigure->setClassName( $className );
-            //
-            // if ( $container->hasDefinition( $serviceId ) ) {
-            //     $definition = $container->getDefinition( $serviceId );
-            // }
-            // else {
-            //     $definition = new Definition( $className );
-            // }
-            //
-            // $container->setDefinition( $serviceId, $definition );
+        foreach ( $this->autodiscover as $className => $config ) {
+            $serviceId = $config->serviceID;
+
+            if ( $container->hasDefinition( $serviceId ) ) {
+                $definition = $container->getDefinition( $serviceId );
+            }
+            else {
+                $definition = new Definition( $className );
+            }
+
+            if ( null !== $config->tags ) {
+                $definition->setTags( $config->tags );
+            }
+
+            if ( null !== $config->calls ) {
+                $definition->setMethodCalls( $config->tags );
+            }
+
+            if ( null !== $config->bind ) {
+                $definition->setBindings( $config->bind );
+            }
+
+            if ( null !== $config->lazy ) {
+                $definition->setLazy( $config->lazy );
+            }
+
+            if ( null !== $config->public ) {
+                $definition->setPublic( $config->public );
+            }
+
+            if ( null !== $config->shared ) {
+                $definition->setShared( $config->shared );
+            }
+
+            if ( null !== $config->autowire ) {
+                $definition->setAutowired( $config->autowire );
+            }
+
+            if ( null !== $config->properties ) {
+                $definition->setProperties( $config->properties );
+            }
+
+            if ( null !== $config->configurator ) {
+                $definition->setConfigurator( $config->configurator );
+            }
+
+            if ( null !== $config->constructor ) {
+                // TODO: Autoconfigure::$config->constructor
+                throw new BadMethodCallException( 'Autoconfigure::$config->constructor Not implemented' );
+            }
+
+            $container->setDefinition( $serviceId, $definition );
         }
     }
 

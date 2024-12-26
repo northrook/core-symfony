@@ -11,8 +11,10 @@ class Autodiscover
 {
     protected readonly string $className;
 
+    public readonly string $serviceID;
+
     public function __construct(
-        public string            $serviceID = '',
+        string                   $serviceID = null,
         public ?array            $tags = null,
         public ?array            $calls = null,
         public ?array            $bind = null,
@@ -23,7 +25,11 @@ class Autodiscover
         public ?array            $properties = null,
         public array|string|null $configurator = null,
         public ?string           $constructor = null,
-    ) {}
+    ) {
+        if ( $serviceID ) {
+            $this->serviceID = $serviceID;
+        }
+    }
 
     final public function setClassName( string $className ) : void
     {
@@ -32,13 +38,11 @@ class Autodiscover
             $this::class." expected a valid \$className; {$className} does not exist.",
         );
         $this->className ??= $className;
-        $this->setServiceID();
+        $this->serviceID ??= $this->serviceID();
     }
 
-    protected function setServiceID() : void
+    protected function serviceID() : string
     {
-        if ( ! $this->serviceID ) {
-            $this->serviceID = $this->className;
-        }
+        return $this->className;
     }
 }
