@@ -25,14 +25,20 @@ class Autodiscover
         public ?string           $constructor = null,
     ) {}
 
-    public function setClassName( string $className ) : void
+    final public function setClassName( string $className ) : void
     {
-        \assert( \is_string( $className ) && \class_exists( $className ) );
+        \assert(
+            \class_exists( $className ),
+            $this::class." expected a valid \$className; {$className} does not exist.",
+        );
         $this->className ??= $className;
+        $this->setServiceID();
     }
 
     protected function setServiceID() : void
     {
-        $this->serviceID ??= $this->className;
+        if ( ! $this->serviceID ) {
+            $this->serviceID = $this->className;
+        }
     }
 }
