@@ -7,8 +7,7 @@ use ReflectionClass;
 use Symfony\Component\DependencyInjection\{Attribute\Autoconfigure,
     Attribute\Lazy,
     ContainerBuilder,
-    Definition,
-    Exception\AutoconfigureFailedException
+    Definition
 };
 use Symfony\Component\Finder\Finder;
 use ReflectionAttribute;
@@ -27,17 +26,18 @@ final class AutodiscoverServicesPass extends CompilerPass
     {
         $this->autodiscoverAnnotatedClasses();
 
-        foreach ( $this->autodiscover as $className => $autoconfigure ) {
-            $serviceId = $autoconfigure->setClassName( $className );
-
-            if ( $container->hasDefinition( $serviceId ) ) {
-                $definition = $container->getDefinition( $serviceId );
-            }
-            else {
-                $definition = new Definition( $className );
-            }
-
-            $container->setDefinition( $serviceId, $definition );
+        foreach ( $this->autodiscover as $className => $autodiscover ) {
+            dump( $autodiscover );
+            // $serviceId = $autoconfigure->setClassName( $className );
+            //
+            // if ( $container->hasDefinition( $serviceId ) ) {
+            //     $definition = $container->getDefinition( $serviceId );
+            // }
+            // else {
+            //     $definition = new Definition( $className );
+            // }
+            //
+            // $container->setDefinition( $serviceId, $definition );
         }
     }
 
@@ -143,23 +143,6 @@ final class AutodiscoverServicesPass extends CompilerPass
         $autodiscover->setClassName( $className );
 
         $this->autodiscover[$className] = $autodiscover;
-
-        //
-        // if ($autoconfigure && $lazy) {
-        //     throw new AutoconfigureFailedException($class->name, 'Using both attributes #[Lazy] and #[Autoconfigure] on an argument is not allowed; use the "lazy" parameter of #[Autoconfigure] instead.');
-        // }
-
-        // foreach ( $attributes as $attribute ) {
-        //     if ( ! \is_subclass_of( $attribute->getName(), Autodiscover::class ) ) {
-        //         continue;
-        //     }
-        //
-        //     $autodiscover = $attribute->newInstanceArgs();
-        //
-        //     dump( $attribute->getTarget(), $autodiscover );
-        //
-        //     $this->autodiscover[$className] = $autodiscover;
-        // }
     }
 
     private function lineContainsDefinition( string $line, ?string &$className ) : bool
