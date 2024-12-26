@@ -4,9 +4,16 @@ namespace Core\Symfony\DependencyInjection;
 
 use InvalidArgumentException;
 use ReflectionClass;
-use ReflectionException;
-use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\{Attribute\Autoconfigure,
+    Attribute\Lazy,
+    ContainerBuilder,
+    Definition,
+    Exception\AutoconfigureFailedException
+};
 use Symfony\Component\Finder\Finder;
+use ReflectionAttribute;
+use LogicException;
+use Throwable;
 
 final class AutodiscoverServicesPass extends CompilerPass
 {
@@ -16,17 +23,22 @@ final class AutodiscoverServicesPass extends CompilerPass
     /** @var Autodiscover[] */
     protected array $autodiscover = [];
 
-    public function __construct()
-    {
-        $this->autodiscoverAnnotatedClasses();
-    }
-
     public function compile( ContainerBuilder $container ) : void
     {
-        dump(
-            $this->classMap,
-            $this->autodiscover,
-        );
+        $this->autodiscoverAnnotatedClasses();
+
+        foreach ( $this->autodiscover as $className => $autoconfigure ) {
+            $serviceId = $autoconfigure->setClassName( $className );
+
+            if ( $container->hasDefinition( $serviceId ) ) {
+                $definition = $container->getDefinition( $serviceId );
+            }
+            else {
+                $definition = new Definition( $className );
+            }
+
+            $container->setDefinition( $serviceId, $definition );
+        }
     }
 
     private function autodiscoverAnnotatedClasses() : void
@@ -94,7 +106,7 @@ final class AutodiscoverServicesPass extends CompilerPass
         $className = $namespace.'\\'.$className;
 
         if ( ! \class_exists( $className ) ) {
-            $this->console->warning( "Class {$className} does not exist." );
+            // $this->console->warning( "Class {$className} does not exist." );
             return;
         }
 
@@ -103,16 +115,51 @@ final class AutodiscoverServicesPass extends CompilerPass
         try {
             $reflection = new ReflectionClass( $className );
         }
-        catch ( ReflectionException $exception ) {
+        catch ( Throwable $exception ) {
             $this->console->error( "Reflection Error: {$exception->getMessage()}" );
             return;
         }
 
-        $attributes = $reflection->getAttributes();
+        $flags = ReflectionAttribute::IS_INSTANCEOF;
 
-        if ( ! empty( $attributes ) ) {
-            dump( $attributes );
+        $autodiscoverAttribute = $reflection->getAttributes( Autodiscover::class, $flags );
+
+        if ( empty( $autodiscoverAttribute ) ) {
+            return;
         }
+
+        $autodiscoverAttribute = \array_pop( $autodiscoverAttribute );
+
+        if ( $reflection->getAttributes( Autoconfigure::class, $flags ) ) {
+            throw new LogicException( "#[Autodiscover] error for {$className}; cannot use #[Autoconfigure] as well." );
+        }
+        if ( $reflection->getAttributes( Lazy::class, $flags ) ) {
+            throw new LogicException( "#[Autodiscover] error for {$className}; cannot use #[Lazy] as well." );
+        }
+
+        /** @var Autodiscover $autodiscover */
+        $autodiscover = $autodiscoverAttribute->newInstance();
+
+        $autodiscover->setClassName( $className );
+
+        $this->autodiscover[$className] = $autodiscover;
+
+        //
+        // if ($autoconfigure && $lazy) {
+        //     throw new AutoconfigureFailedException($class->name, 'Using both attributes #[Lazy] and #[Autoconfigure] on an argument is not allowed; use the "lazy" parameter of #[Autoconfigure] instead.');
+        // }
+
+        // foreach ( $attributes as $attribute ) {
+        //     if ( ! \is_subclass_of( $attribute->getName(), Autodiscover::class ) ) {
+        //         continue;
+        //     }
+        //
+        //     $autodiscover = $attribute->newInstanceArgs();
+        //
+        //     dump( $attribute->getTarget(), $autodiscover );
+        //
+        //     $this->autodiscover[$className] = $autodiscover;
+        // }
     }
 
     private function lineContainsDefinition( string $line, ?string &$className ) : bool
