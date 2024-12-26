@@ -1,19 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Core\Symfony\DependencyInjection;
 
-use InvalidArgumentException;
-use ReflectionClass;
-use Symfony\Component\DependencyInjection\{Attribute\Autoconfigure,
-    Attribute\Lazy,
-    ContainerBuilder,
-    Definition
-};
+use Symfony\Component\DependencyInjection\{ContainerBuilder, Definition};
+use Symfony\Component\DependencyInjection\Attribute\{Autoconfigure, Lazy};
 use Symfony\Component\Finder\Finder;
-use ReflectionAttribute;
-use LogicException;
-use Throwable;
-use BadMethodCallException;
+use ReflectionClass, ReflectionAttribute;
+use InvalidArgumentException, LogicException, BadMethodCallException;
 
 final class AutodiscoverServicesPass extends CompilerPass
 {
@@ -38,7 +33,16 @@ final class AutodiscoverServicesPass extends CompilerPass
             }
 
             if ( null !== $config->tags ) {
-                $definition->setTags( $config->tags );
+                foreach ( $config->tags as $key => $tag ) {
+                    if ( \is_string( $tag ) ) {
+                        $key = $tag;
+                        $tag = [];
+                    }
+                    if ( \is_array( $tag ) ) {
+                        \assert( \is_string( $key ) );
+                    }
+                    $definition->addTag( $key, $tag );
+                }
             }
 
             if ( null !== $config->calls ) {
@@ -107,8 +111,6 @@ final class AutodiscoverServicesPass extends CompilerPass
 
         $discover->files()->name( '*.php' );
 
-        $autodiscover = [];
-
         foreach ( $discover as $file ) {
             $this->parseAutodisoveredFile( $file->getPathname() );
         }
@@ -147,29 +149,20 @@ final class AutodiscoverServicesPass extends CompilerPass
         $className = $namespace.'\\'.$className;
 
         if ( ! \class_exists( $className ) ) {
-            // $this->console->warning( "Class {$className} does not exist." );
             return;
         }
 
         $this->classMap[$className] = $className;
 
-        try {
-            $reflection = new ReflectionClass( $className );
-        }
-        catch ( Throwable $exception ) {
-            $this->console->error( "Reflection Error: {$exception->getMessage()}" );
+        $reflection = new ReflectionClass( $className );
+        $flags      = ReflectionAttribute::IS_INSTANCEOF;
+        $attributes = $reflection->getAttributes( Autodiscover::class, $flags );
+
+        if ( empty( $attributes ) ) {
             return;
         }
 
-        $flags = ReflectionAttribute::IS_INSTANCEOF;
-
-        $autodiscoverAttribute = $reflection->getAttributes( Autodiscover::class, $flags );
-
-        if ( empty( $autodiscoverAttribute ) ) {
-            return;
-        }
-
-        $autodiscoverAttribute = \array_pop( $autodiscoverAttribute );
+        $attributes = \array_pop( $attributes );
 
         if ( $reflection->getAttributes( Autoconfigure::class, $flags ) ) {
             throw new LogicException( "#[Autodiscover] error for {$className}; cannot use #[Autoconfigure] as well." );
@@ -179,7 +172,7 @@ final class AutodiscoverServicesPass extends CompilerPass
         }
 
         /** @var Autodiscover $autodiscover */
-        $autodiscover = $autodiscoverAttribute->newInstance();
+        $autodiscover = $attributes->newInstance();
 
         $autodiscover->setClassName( $className );
 
