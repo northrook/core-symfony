@@ -199,7 +199,7 @@ final class AutodiscoverServicesPass extends CompilerPass
                 $className = \strstr( $classString, ' ', true ) ?: $classString;
 
                 if ( ! $className ) {
-                    dump( [$line => $className] );
+                    $this->console->warning( 'Expected a valid class name for class '.$classString );
                 }
 
                 return true;
