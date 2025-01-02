@@ -64,18 +64,18 @@ class Autodiscover
      * @param null|string                                                             $constructor
      */
     public function __construct(
-        ?string                  $serviceID = AUTO,
-        null|string|array        $tag = null,
-        public ?array            $calls = null,
-        public ?array            $bind = null,
-        public ?bool             $lazy = null,
-        public ?bool             $public = null,
-        public ?bool             $shared = null,
-        public ?bool             $autowire = null,
-        null|false|string|array  $alias = AUTO, // / @ TODO : implement auto-aliasing
-        public ?array            $properties = null,
-        public null|string|array $configurator = null,
-        public ?string           $constructor = null,
+        ?string                           $serviceID = AUTO,
+        null|string|array                 $tag = null,
+        public readonly ?array            $calls = null,
+        public readonly ?array            $bind = null,
+        public readonly ?bool             $lazy = null,
+        public readonly ?bool             $public = null,
+        public readonly ?bool             $shared = null,
+        public readonly ?bool             $autowire = null,
+        null|false|string|array           $alias = AUTO, // / @ TODO : implement auto-aliasing
+        public readonly ?array            $properties = null,
+        public readonly null|string|array $configurator = null,
+        public readonly ?string           $constructor = null,
     ) {
         if ( $serviceID ) {
             $this->serviceID = $serviceID;
@@ -102,6 +102,11 @@ class Autodiscover
         $this->serviceID ??= $this->serviceID();
     }
 
+    /**
+     * Override this method to filter the `serviceID` string.
+     *
+     * @return string
+     */
     protected function serviceID() : string
     {
         return $this->className;

@@ -2,10 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Core\Symfony\DependencyInjection;
+namespace Core\Symfony\Compiler;
 
 use Symfony\Component\DependencyInjection\{ContainerBuilder, Definition};
 use Symfony\Component\DependencyInjection\Attribute\{Autoconfigure, Lazy};
+use Core\Symfony\DependencyInjection\{Autodiscover, CompilerPass};
 use Symfony\Component\Finder\Finder;
 use ReflectionClass, ReflectionAttribute;
 use InvalidArgumentException, LogicException, BadMethodCallException;

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Core\Symfony\DependencyInjection;
+namespace Core\Symfony\Compiler;
 
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;

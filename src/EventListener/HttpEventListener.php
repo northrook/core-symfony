@@ -5,9 +5,10 @@ declare(strict_types=1);
 namespace Core\Symfony\EventListener;
 
 use Cache, InvalidArgumentException;
+use Core\Symfony\Interface\ServiceContainerInterface;
 use Northrook\Clerk;
 use Psr\Log\LoggerInterface;
-use Core\Symfony\DependencyInjection\{ServiceContainer, ServiceContainerInterface};
+use Core\Symfony\DependencyInjection\{ServiceContainer};
 use Symfony\Component\Cache\Adapter\{ArrayAdapter};
 use Support\Normalize;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Core\Symfony\DependencyInjection;
 
+use Core\Symfony\Interface\ServiceContainerInterface;
 use Northrook\Logger\Log;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 

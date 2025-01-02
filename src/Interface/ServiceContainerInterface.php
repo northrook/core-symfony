@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Core\Symfony\DependencyInjection;
+namespace Core\Symfony\Interface;
 
 use Symfony\Contracts\Service\Attribute\Required;
 use Symfony\Contracts\Service\ServiceCollectionInterface;
