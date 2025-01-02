@@ -32,13 +32,13 @@ final class AutodiscoverServicesPass extends CompilerPass
                 $definition = new Definition( $className );
             }
 
-            if ( null !== $config->tags ) {
-                foreach ( $config->tags as $key => $tag ) {
+            if ( null !== $config->tag ) {
+                foreach ( $config->tag as $key => $tag ) {
                     if ( \is_string( $tag ) ) {
                         $key = $tag;
-                        $tag = [];
+                        $tag = []; // empty properties
                     }
-                    if ( \is_array( $tag ) ) {
+                    elseif ( \is_array( $tag ) ) {
                         \assert( \is_string( $key ) );
                     }
                     $definition->addTag( $key, $tag );
@@ -80,6 +80,18 @@ final class AutodiscoverServicesPass extends CompilerPass
             if ( null !== $config->constructor ) {
                 // TODO: Autoconfigure::$config->constructor
                 throw new BadMethodCallException( 'Autoconfigure::$config->constructor Not implemented' );
+            }
+
+            // null = AUTO
+            if ( null === $config->alias ) {
+                // if AUTO - look for Interfaces that start with className
+                dump( $config->serviceID.' auto alias enabled' );
+            }
+
+            if ( \is_array( $config->alias ) ) {
+                foreach ( $config->alias as $alias ) {
+                    $container->setAlias( $alias, $serviceId );
+                }
             }
 
             $container->setDefinition( $serviceId, $definition );

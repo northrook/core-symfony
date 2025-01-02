@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Core\Symfony\DependencyInjection;
 
 use Attribute;
+use Symfony\Component\DependencyInjection\Argument\TaggedIteratorArgument;
+use Symfony\Component\DependencyInjection\Loader\Configurator\ReferenceConfigurator;
 use const Support\AUTO;
 
 #[Attribute( Attribute::TARGET_CLASS )]
@@ -14,15 +16,30 @@ class Autodiscover
 
     public readonly string $serviceID;
 
+    /** @var null|array<string, array<string, string>> */
+    public readonly ?array $tag;
+
+    /** @var null|class-string[]|false|string[] */
+    public readonly null|false|array $alias;
+
     /**
      * ## `$serviceID`
      * Define a serviceID for this service.
      *
      * Will register using the className by default.
      *
-     * ## `$tags`
+     * ## `$tag`
+     * The tags to add to the service.
+     *
+     * ```
+     * Attribute( tag: 'add.single_tag' )
+     * Attribute( tag: ['tag.multiple', 'at.once'] )
+     * Attribute( tag: ['tag.with_properties' => ['property'=>'argument']] )
+     * ```
      *
      * ## `$calls`
+     *
+     *
      * ## `$bind`
      * ## `$lazy`
      * ## `$public`
@@ -33,29 +50,29 @@ class Autodiscover
      * ## `$configurator`
      * ## `$constructor`
      *
-     * @param null|string                                                               $serviceID
-     * @param null|array<string, array<string, bool|int|string>|bool|int|string>|string $tags
-     * @param null|array                                                                $calls
-     * @param null|array                                                                $bind
-     * @param null|bool                                                                 $lazy
-     * @param null|bool                                                                 $public
-     * @param null|bool                                                                 $shared
-     * @param null|bool                                                                 $autowire
-     * @param null|array|false                                                          $alias
-     * @param null|array                                                                $properties
-     * @param null|array|string                                                         $configurator
-     * @param null|string                                                               $constructor
+     * @param null|string                                                             $serviceID
+     * @param null|array<string, array<string, string>>|string                        $tag
+     * @param null|array<string, ReferenceConfigurator|string|TaggedIteratorArgument> $calls
+     * @param null|array<string, string>                                              $bind
+     * @param null|bool                                                               $lazy
+     * @param null|bool                                                               $public
+     * @param null|bool                                                               $shared
+     * @param null|bool                                                               $autowire
+     * @param null|false|string|string[]                                              $alias
+     * @param null|array<string, mixed>                                               $properties
+     * @param null|array<class-string, string>|string                                 $configurator
+     * @param null|string                                                             $constructor
      */
     public function __construct(
         ?string                  $serviceID = AUTO,
-        public null|string|array $tags = null,
+        null|string|array        $tag = null,
         public ?array            $calls = null,
         public ?array            $bind = null,
         public ?bool             $lazy = null,
         public ?bool             $public = null,
         public ?bool             $shared = null,
         public ?bool             $autowire = null,
-        public null|false|array  $alias = AUTO, // / @ TODO : implement auto-aliasing
+        null|false|string|array  $alias = AUTO, // / @ TODO : implement auto-aliasing
         public ?array            $properties = null,
         public null|string|array $configurator = null,
         public ?string           $constructor = null,
@@ -63,9 +80,16 @@ class Autodiscover
         if ( $serviceID ) {
             $this->serviceID = $serviceID;
         }
-        if ( \is_string( $tags ) ) {
-            $this->tags = [$tags];
-        }
+
+        $this->tag = match ( \is_string( $tag ) ) {
+            true    => [$tag => []],
+            default => $tag,
+        };
+
+        $this->alias = match ( \is_string( $alias ) ) {
+            true    => [$alias],
+            default => $alias,
+        };
     }
 
     final public function setClassName( string $className ) : void
