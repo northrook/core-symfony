@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Core\Symfony\DependencyInjection;
 
 use Support\Normalize;
@@ -38,17 +40,18 @@ abstract class ServiceConfigurator
                 if ( \is_string( $value ) ) {
                     $value = Normalize::path( $value );
                 }
+
+                $this->parameters[$paramterKey] = $value;
             }
         }
     }
 
     final protected function keyHintsPathOrDirectory( string $key ) : bool
     {
-        return (bool) (
-            \str_ends_with( $key, 'Directory' )
+        return
+                \str_ends_with( $key, 'Directory' )
                 || \str_ends_with( $key, 'Directories' )
                 || \str_ends_with( $key, 'Path' )
-                || \str_ends_with( $key, 'Paths' )
-        );
+                || \str_ends_with( $key, 'Paths' );
     }
 }

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Core\Symfony\DependencyInjection;
 
-use Core\Symfony\DependencyInjection\Exception\ServiceContainerException;
+use Core\Symfony\Exception\ServiceContainerException;
 use Northrook\Logger\Log;
 use Symfony\Component\HttpFoundation\{Request, RequestStack};
 use Symfony\Component\DependencyInjection as Symfony;

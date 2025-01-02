@@ -1,6 +1,6 @@
 <?php
 
-/** @noinspection PhpClassCanBeReadonlyInspection */
+declare(strict_types=1);
 
 namespace Core\Symfony\DependencyInjection;
 

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Core\Symfony\DependencyInjection;
 
 use Attribute;
+use const Support\AUTO;
 
 #[Attribute( Attribute::TARGET_CLASS )]
 class Autodiscover
@@ -22,8 +23,9 @@ class Autodiscover
         public ?bool             $public = null,
         public ?bool             $shared = null,
         public ?bool             $autowire = null,
+        public null|false|array  $aliase = AUTO, // / @ TODO : implement auto-aliasing
         public ?array            $properties = null,
-        public array|string|null $configurator = null,
+        public null|string|array $configurator = null,
         public ?string           $constructor = null,
     ) {
         if ( $serviceID ) {
