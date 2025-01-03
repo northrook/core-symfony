@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Core\Symfony\Compiler;
 
+use Override;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Core\Symfony\Console\Output;
@@ -19,6 +20,7 @@ use Support\Interface\ActionInterface;
  */
 final class AutowireActionsPass implements CompilerPassInterface
 {
+    #[Override]
     public function process( ContainerBuilder $container ) : void
     {
         if ( ! \interface_exists( ActionInterface::class ) ) {
@@ -39,12 +41,12 @@ final class AutowireActionsPass implements CompilerPassInterface
                 $definition->setAutowired( true );
                 $definition->addTag( 'controller.service_arguments' );
 
-                $registeredServices[] = [Output::format( '[OK]', 'info' ).$service];
+                $registeredServices[] = Output::format( Output::MARKER, 'info' ).$service;
             }
         }
 
         if ( ! empty( $registeredServices ) ) {
-            Output::table( __METHOD__, $registeredServices );
+            Output::list( __METHOD__, ...$registeredServices );
         }
     }
 }

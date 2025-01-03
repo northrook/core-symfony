@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Core\Symfony\Console;
 
+use Stringable;
 use Symfony\Component\Console\Helper\FormatterHelper;
 use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\ConsoleOutput;
@@ -11,7 +12,38 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 final class Output
 {
+    public const string
+        MARKER = '│',
+        DOTTED = '┊';
+
     private static SymfonyStyle $instance;
+
+    public static function list( ?string $title, string ...$items ) : void
+    {
+        if ( $title || $items ) {
+            Output::symfonyStyle()->newLine();
+        }
+
+        if ( $title ) {
+            if ( \str_contains( $title, '::' ) ) {
+                $title = \trim( \strrchr( $title, '\\' ) ?: $title, '\\' );
+            }
+
+            $separator = \strlen( $title ) + 3;
+            Output::printLine( $title, 'fg=bright-white;options=bold' );
+            // Output::printLine( \str_repeat( '─', $separator ), 'fg=gray' );
+        }
+
+        foreach ( $items as $index => $item ) {
+            Output::printLine( $item );
+        }
+
+        if ( ! $items ) {
+            Output::printLine( 'Empty list', 'fg=red' );
+        }
+
+        Output::printLine( '' );
+    }
 
     /**
      * @param string ...$message
@@ -20,7 +52,7 @@ final class Output
      */
     public static function text( string ...$message ) : void
     {
-        Output::print()->text( $message );
+        Output::symfonyStyle()->text( $message );
     }
 
     /**
@@ -30,7 +62,7 @@ final class Output
      */
     public static function comment( string ...$message ) : void
     {
-        Output::print()->comment( $message );
+        Output::symfonyStyle()->comment( $message );
     }
 
     /**
@@ -48,7 +80,7 @@ final class Output
             $row[$line] = [$value];
         }
 
-        Output::print()->table( (array) $header, $row );
+        Output::symfonyStyle()->table( (array) $header, $row );
     }
 
     /**
@@ -58,7 +90,7 @@ final class Output
      */
     public static function success( string ...$message ) : void
     {
-        Output::print()->success( $message );
+        Output::symfonyStyle()->success( $message );
     }
 
     /**
@@ -68,7 +100,7 @@ final class Output
      */
     public static function error( string ...$message ) : void
     {
-        Output::print()->error( $message );
+        Output::symfonyStyle()->error( $message );
     }
 
     /**
@@ -78,7 +110,7 @@ final class Output
      */
     public static function warning( string ...$message ) : void
     {
-        Output::print()->warning( $message );
+        Output::symfonyStyle()->warning( $message );
     }
 
     /**
@@ -88,7 +120,7 @@ final class Output
      */
     public static function note( string ...$message ) : void
     {
-        Output::print()->note( $message );
+        Output::symfonyStyle()->note( $message );
     }
 
     /**
@@ -98,7 +130,7 @@ final class Output
      */
     public static function info( string ...$message ) : void
     {
-        Output::print()->info( $message );
+        Output::symfonyStyle()->info( $message );
     }
 
     /**
@@ -108,7 +140,7 @@ final class Output
      */
     public static function caution( string ...$message ) : void
     {
-        Output::print()->caution( $message );
+        Output::symfonyStyle()->caution( $message );
     }
 
     /**
@@ -123,7 +155,23 @@ final class Output
         return ( new FormatterHelper() )->formatBlock( $message, $style, $large );
     }
 
-    public static function print() : SymfonyStyle
+    public static function print( string|Stringable $message, false|string $format = false ) : void
+    {
+        if ( $format ) {
+            $message = Output::format( \trim( $message ), $format );
+        }
+        self::symfonyStyle()->write( $message );
+    }
+
+    public static function printLine( string|Stringable $message, false|string $format = false ) : void
+    {
+        if ( $format ) {
+            $message = Output::format( \trim( $message ), $format );
+        }
+        self::symfonyStyle()->writeln( $message );
+    }
+
+    public static function symfonyStyle() : SymfonyStyle
     {
         return self::$instance ??= new SymfonyStyle( new StringInput( '' ), new ConsoleOutput() );
     }

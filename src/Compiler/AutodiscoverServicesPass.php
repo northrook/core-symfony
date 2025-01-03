@@ -7,9 +7,11 @@ namespace Core\Symfony\Compiler;
 use Symfony\Component\DependencyInjection\{ContainerBuilder, Definition};
 use Symfony\Component\DependencyInjection\Attribute\{Autoconfigure, Lazy};
 use Core\Symfony\DependencyInjection\{Autodiscover, CompilerPass};
+use Core\Symfony\Console\Output;
 use Symfony\Component\Finder\Finder;
 use ReflectionClass, ReflectionAttribute;
 use InvalidArgumentException, LogicException, BadMethodCallException;
+use function Support\classBasename;
 
 final class AutodiscoverServicesPass extends CompilerPass
 {
@@ -22,6 +24,8 @@ final class AutodiscoverServicesPass extends CompilerPass
     public function compile( ContainerBuilder $container ) : void
     {
         $this->autodiscoverAnnotatedClasses();
+
+        $registeredServices = [];
 
         foreach ( $this->autodiscover as $className => $config ) {
             $serviceId = $config->serviceID;
@@ -84,18 +88,33 @@ final class AutodiscoverServicesPass extends CompilerPass
             }
 
             // null = AUTO
+
+            $add = Output::format( Output::DOTTED, 'info' );
             if ( null === $config->alias ) {
-                // if AUTO - look for Interfaces that start with className
-                dump( $config->serviceID.' auto alias enabled' );
+                $basename = classBasename( $className );
+
+                foreach ( \class_implements( $className ) ?: [] as $interface ) {
+                    // dump( [ $basename => classBasename( $interface ) ] );
+                    if ( \str_starts_with( classBasename( $interface ), $basename ) ) {
+                        $container->setAlias( $interface, $serviceId );
+                        $registeredServices[] = $add.'Auto alias set: '.$interface;
+                    }
+                }
             }
 
             if ( \is_array( $config->alias ) ) {
                 foreach ( $config->alias as $alias ) {
                     $container->setAlias( $alias, $serviceId );
+                    $registeredServices[] = $add.'Alias set: '.$alias;
                 }
             }
 
             $container->setDefinition( $serviceId, $definition );
+            $registeredServices[] = Output::format( Output::MARKER, 'info' ).$serviceId;
+        }
+
+        if ( ! empty( $registeredServices ) ) {
+            Output::list( __METHOD__, ...$registeredServices );
         }
     }
 
