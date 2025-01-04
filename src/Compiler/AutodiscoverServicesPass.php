@@ -8,6 +8,7 @@ use Symfony\Component\DependencyInjection\{ContainerBuilder, Definition};
 use Symfony\Component\DependencyInjection\Attribute\{Autoconfigure, Lazy};
 use Core\Symfony\DependencyInjection\{Autodiscover, CompilerPass};
 use Core\Symfony\Console\Output;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Finder\Finder;
 use ReflectionClass, ReflectionAttribute;
 use InvalidArgumentException, LogicException, BadMethodCallException;
@@ -25,10 +26,13 @@ final class AutodiscoverServicesPass extends CompilerPass
     {
         $this->autodiscoverAnnotatedClasses();
 
+        $add                = Output::format( '+', 'info' );
         $registeredServices = [];
 
         foreach ( $this->autodiscover as $className => $config ) {
             $serviceId = $config->serviceID;
+
+            $registeredServices[] = Output::format( Output::MARKER, 'info' ).$serviceId;
 
             if ( $container->hasDefinition( $serviceId ) ) {
                 $definition = $container->getDefinition( $serviceId );
@@ -37,6 +41,10 @@ final class AutodiscoverServicesPass extends CompilerPass
                 $definition = new Definition( $className );
             }
 
+            $interfaces = \class_implements( $className ) ?: [];
+
+            // .. Tags
+
             if ( null !== $config->tag ) {
                 foreach ( $config->tag as $key => $tag ) {
                     if ( \is_string( $tag ) ) {
@@ -44,11 +52,24 @@ final class AutodiscoverServicesPass extends CompilerPass
                         $tag = []; // empty properties
                     }
                     elseif ( \is_array( $tag ) ) {
-                        \assert( \is_string( $key ) );
+                        \assert(
+                            \is_string( $key ),
+                            'The Autodiscover->tag properties should be nested. Was provided: '.\print_r(
+                                $config->tag,
+                                true,
+                            ),
+                        );
                     }
                     $definition->addTag( $key, $tag );
                 }
             }
+
+            if ( \in_array( EventSubscriberInterface::class, $interfaces ) ) {
+                $definition->addTag( 'kernel.event_subscriber' );
+                $registeredServices[] = $add."auto tagged 'kernel.event_subscriber'";
+            }
+
+            // :: Tags
 
             if ( null !== $config->calls ) {
                 $definition->setMethodCalls( $config->calls );
@@ -89,11 +110,10 @@ final class AutodiscoverServicesPass extends CompilerPass
 
             // null = AUTO
 
-            $add = Output::format( Output::DOTTED, 'info' );
             if ( null === $config->alias ) {
                 $basename = classBasename( $className );
 
-                foreach ( \class_implements( $className ) ?: [] as $interface ) {
+                foreach ( $interfaces as $interface ) {
                     // dump( [ $basename => classBasename( $interface ) ] );
                     if ( \str_starts_with( classBasename( $interface ), $basename ) ) {
                         $container->setAlias( $interface, $serviceId );
@@ -110,10 +130,10 @@ final class AutodiscoverServicesPass extends CompilerPass
             }
 
             $container->setDefinition( $serviceId, $definition );
-            $registeredServices[] = Output::format( Output::MARKER, 'info' ).$serviceId;
         }
 
         if ( ! empty( $registeredServices ) ) {
+            dump( $registeredServices );
             Output::list( __METHOD__, ...$registeredServices );
         }
     }

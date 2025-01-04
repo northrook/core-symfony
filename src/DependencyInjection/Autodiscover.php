@@ -12,7 +12,7 @@ use const Support\AUTO;
 #[Attribute( Attribute::TARGET_CLASS )]
 class Autodiscover
 {
-    protected readonly string $className;
+    public readonly string $className;
 
     public readonly string $serviceID;
 
