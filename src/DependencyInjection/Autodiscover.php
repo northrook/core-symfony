@@ -51,7 +51,7 @@ class Autodiscover
      * ## `$constructor`
      *
      * @param null|string                                                             $serviceID
-     * @param null|array<string, array<string, string>>|string                        $tag
+     * @param null|array<array-key, array<string, string>|string>|string              $tag
      * @param null|array<string, ReferenceConfigurator|string|TaggedIteratorArgument> $calls
      * @param null|array<string, string>                                              $bind
      * @param null|bool                                                               $lazy
