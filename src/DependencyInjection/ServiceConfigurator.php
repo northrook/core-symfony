@@ -13,7 +13,7 @@ abstract class ServiceConfigurator
      */
     final protected function __construct( protected array $parameters )
     {
-        dump( $this::class );
+        // dump( $this::class );
 
         foreach ( $this->parameters as $key => $value ) {
             \assert( \is_string( $key ), 'Parameter keys must be strings.' );

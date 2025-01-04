@@ -133,7 +133,7 @@ final class AutodiscoverServicesPass extends CompilerPass
         }
 
         if ( ! empty( $registeredServices ) ) {
-            dump( $registeredServices );
+            // dump( $registeredServices );
             Output::list( __METHOD__, ...$registeredServices );
         }
     }
