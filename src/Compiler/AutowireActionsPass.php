@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Core\Symfony\Compiler;
 
+use Core\Symfony\Console\{ListReport, Output};
 use Override;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Core\Symfony\Console\Output;
 use Support\Interface\ActionInterface;
 
 /**
@@ -28,12 +28,12 @@ final class AutowireActionsPass implements CompilerPassInterface
             return;
         }
 
-        $registeredServices = [];
+        $registeredServices = new ListReport( __METHOD__ );
 
         foreach ( $container->getDefinitions() as $definition ) {
             $service = $definition->getClass();
 
-            if ( ! $service || \str_starts_with( $service, 'Symfony\\' ) ) {
+            if ( ! $service ) {
                 continue;
             }
 
@@ -41,12 +41,10 @@ final class AutowireActionsPass implements CompilerPassInterface
                 $definition->setAutowired( true );
                 $definition->addTag( 'controller.service_arguments' );
 
-                $registeredServices[] = Output::format( Output::MARKER, 'info' ).$service;
+                $registeredServices->item( $service );
             }
         }
 
-        if ( ! empty( $registeredServices ) ) {
-            Output::list( __METHOD__, ...$registeredServices );
-        }
+        $registeredServices->output();
     }
 }

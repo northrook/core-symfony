@@ -7,7 +7,7 @@ namespace Core\Symfony\Compiler;
 use Symfony\Component\DependencyInjection\{ContainerBuilder, Definition};
 use Symfony\Component\DependencyInjection\Attribute\{Autoconfigure, Lazy};
 use Core\Symfony\DependencyInjection\{Autodiscover, CompilerPass};
-use Core\Symfony\Console\Output;
+use Core\Symfony\Console\{ListReport};
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Finder\Finder;
 use ReflectionClass, ReflectionAttribute;
@@ -26,13 +26,12 @@ final class AutodiscoverServicesPass extends CompilerPass
     {
         $this->autodiscoverAnnotatedClasses();
 
-        $add                = Output::format( '+', 'info' );
-        $registeredServices = [];
+        $registeredServices = new ListReport( __METHOD__ );
 
         foreach ( $this->autodiscover as $className => $config ) {
             $serviceId = $config->serviceID;
 
-            $registeredServices[] = Output::format( Output::MARKER, 'info' ).$serviceId;
+            $registeredServices->item( $serviceId );
 
             if ( $container->hasDefinition( $serviceId ) ) {
                 $definition = $container->getDefinition( $serviceId );
@@ -61,12 +60,13 @@ final class AutodiscoverServicesPass extends CompilerPass
                         );
                     }
                     $definition->addTag( $key, $tag );
+                    $registeredServices->add( "tagged: '{$config->tag}'" );
                 }
             }
 
             if ( \in_array( EventSubscriberInterface::class, $interfaces ) ) {
                 $definition->addTag( 'kernel.event_subscriber' );
-                $registeredServices[] = $add."auto tagged 'kernel.event_subscriber'";
+                $registeredServices->add( "auto tagged: 'kernel.event_subscriber'" );
             }
 
             // :: Tags
@@ -117,7 +117,7 @@ final class AutodiscoverServicesPass extends CompilerPass
                     // dump( [ $basename => classBasename( $interface ) ] );
                     if ( \str_starts_with( classBasename( $interface ), $basename ) ) {
                         $container->setAlias( $interface, $serviceId );
-                        $registeredServices[] = $add.'Auto alias set: '.$interface;
+                        $registeredServices->add( "auto alias: '{$interface}'" );
                     }
                 }
             }
@@ -125,17 +125,14 @@ final class AutodiscoverServicesPass extends CompilerPass
             if ( \is_array( $config->alias ) ) {
                 foreach ( $config->alias as $alias ) {
                     $container->setAlias( $alias, $serviceId );
-                    $registeredServices[] = $add.'Alias set: '.$alias;
+                    $registeredServices->add( "alias: '{$alias}'" );
                 }
             }
 
             $container->setDefinition( $serviceId, $definition );
         }
 
-        if ( ! empty( $registeredServices ) ) {
-            // dump( $registeredServices );
-            Output::list( __METHOD__, ...$registeredServices );
-        }
+        $registeredServices->output();
     }
 
     private function autodiscoverAnnotatedClasses() : void
