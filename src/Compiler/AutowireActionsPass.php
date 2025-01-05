@@ -9,6 +9,7 @@ use Override;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Support\Interface\ActionInterface;
+use function Support\implements_interface;
 
 /**
  * Classes implementing the {@see ActionInterface} are automatically `autowired` and tagged with `controller.service_arguments`.
@@ -33,11 +34,11 @@ final class AutowireActionsPass implements CompilerPassInterface
         foreach ( $container->getDefinitions() as $definition ) {
             $service = $definition->getClass();
 
-            if ( ! $service ) {
+            if ( !$service ) {
                 continue;
             }
 
-            if ( \is_subclass_of( $service, ActionInterface::class ) ) {
+            if ( implements_interface( $service, ActionInterface::class ) ) {
                 $definition->setAutowired( true );
                 $definition->addTag( 'controller.service_arguments' );
 
