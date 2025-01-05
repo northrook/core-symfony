@@ -60,7 +60,7 @@ final class AutodiscoverServicesPass extends CompilerPass
                         );
                     }
                     $definition->addTag( $key, $tag );
-                    $registeredServices->add( "tagged: '{$config->tag}'" );
+                    $registeredServices->add( "tagged: '{$tag}'" );
                 }
             }
 

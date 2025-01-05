@@ -16,7 +16,7 @@ class Autodiscover
 
     public readonly string $serviceID;
 
-    /** @var null|array<string, array<string, string>> */
+    /** @var null|array<array-key, array<array-key, string>|string> */
     public readonly ?array $tag;
 
     /** @var null|class-string[]|false|string[] */
