@@ -29,12 +29,10 @@ final class Output
                 $title = \trim( \strrchr( $title, '\\' ) ?: $title, '\\' );
             }
 
-            $separator = \strlen( $title ) + 3;
             Output::printLine( $title, 'fg=bright-white;options=bold' );
-            // Output::printLine( \str_repeat( '─', $separator ), 'fg=gray' );
         }
 
-        foreach ( $items as $index => $item ) {
+        foreach ( $items as $item ) {
             Output::printLine( $item );
         }
 
@@ -158,17 +156,17 @@ final class Output
     public static function print( string|Stringable $message, false|string $format = false ) : void
     {
         if ( $format ) {
-            $message = Output::format( \trim( $message ), $format );
+            $message = Output::format( \trim( (string) $message ), $format );
         }
-        self::symfonyStyle()->write( $message );
+        self::symfonyStyle()->write( (string) $message );
     }
 
     public static function printLine( string|Stringable $message, false|string $format = false ) : void
     {
         if ( $format ) {
-            $message = Output::format( \trim( $message ), $format );
+            $message = Output::format( \trim( (string) $message ), $format );
         }
-        self::symfonyStyle()->writeln( $message );
+        self::symfonyStyle()->writeln( (string) $message );
     }
 
     public static function symfonyStyle() : SymfonyStyle
