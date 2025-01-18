@@ -13,6 +13,7 @@ use Symfony\Component\Finder\Finder;
 use ReflectionClass, ReflectionAttribute;
 use InvalidArgumentException, LogicException, BadMethodCallException;
 use function Support\classBasename;
+use ReflectionException;
 
 final class AutodiscoverServicesPass extends CompilerPass
 {
@@ -197,15 +198,25 @@ final class AutodiscoverServicesPass extends CompilerPass
 
         $className = $namespace.'\\'.$className;
 
-        if ( ! \class_exists( $className ) ) {
+        /*? autoload: false
+         *  Triggering autoload for any and all classes can lead to implementation exceptions
+         *  We are looking at every single .php file, so they could be deprecated or outdated.
+         */
+        if ( ! \class_exists( $className, false ) ) {
             return;
         }
 
         $this->classMap[$className] = $className;
 
-        $reflection = new ReflectionClass( $className );
-        $flags      = ReflectionAttribute::IS_INSTANCEOF;
-        $attributes = $reflection->getAttributes( Autodiscover::class, $flags );
+        try {
+            $reflection = new ReflectionClass( $className );
+            $flags      = ReflectionAttribute::IS_INSTANCEOF;
+            $attributes = $reflection->getAttributes( Autodiscover::class, $flags );
+        }
+        catch ( ReflectionException $e ) {
+            $this->console->error( $e->getMessage() );
+            return;
+        }
 
         if ( empty( $attributes ) ) {
             return;

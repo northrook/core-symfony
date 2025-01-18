@@ -34,7 +34,7 @@ final class AutowireActionsPass implements CompilerPassInterface
         foreach ( $container->getDefinitions() as $definition ) {
             $service = $definition->getClass();
 
-            if ( !$service ) {
+            if ( ! $service ) {
                 continue;
             }
 

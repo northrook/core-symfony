@@ -77,7 +77,13 @@ abstract class CompilerPass implements CompilerPassInterface
             \array_unique(
                 [
                     ...\get_declared_classes(),
-                    ...\array_filter( $services, 'class_exists' ),
+                    ...\array_filter(
+                        $services,
+                        static fn( $className ) => \class_exists(
+                            $className,
+                            false,
+                        ),
+                    ),
                 ],
             ),
         );
@@ -97,7 +103,8 @@ abstract class CompilerPass implements CompilerPassInterface
      */
     final protected function createYamlFile(
         string       $fromProjectDir,
-        #[Language( 'PHP' )] string|array $data,
+        #[Language( 'PHP' )]
+        string|array $data,
         bool         $override = false,
     ) : void {
         $path = $this->path( $fromProjectDir );
@@ -111,7 +118,8 @@ abstract class CompilerPass implements CompilerPassInterface
 
     final protected function createPhpFile(
         string    $fromProjectDir,
-        #[Language( 'PHP' )] string    $php,
+        #[Language( 'PHP' )]
+        string    $php,
         bool      $override = false,
         string ...$comment,
     ) : void {
@@ -138,7 +146,8 @@ abstract class CompilerPass implements CompilerPassInterface
     }
 
     private function parsePhpString(
-        #[Language( 'PHP' )] string    $php,
+        #[Language( 'PHP' )]
+        string    $php,
         string ...$comment,
     ) : string {
         if ( ! \str_starts_with( $php, '<?php' ) ) {
