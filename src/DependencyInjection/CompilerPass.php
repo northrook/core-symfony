@@ -179,7 +179,7 @@ abstract class CompilerPass implements CompilerPassInterface
         $content = \preg_replace(
             pattern     : '#<\?php\s+?(?=\S)#A',
             replacement : '<?php'.\implode( "\n", $header ),
-            subject     : $php,
+            subject     : (string) \preg_replace( '#^\h+$#m', '', $php ),
         );
 
         \assert( \is_string( $content ) );
