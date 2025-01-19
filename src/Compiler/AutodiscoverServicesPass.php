@@ -5,15 +5,15 @@ declare(strict_types=1);
 namespace Core\Symfony\Compiler;
 
 use Symfony\Component\DependencyInjection\{ContainerBuilder, Definition};
-use Symfony\Component\DependencyInjection\Attribute\{Autoconfigure, Lazy};
+use Symfony\Component\DependencyInjection\Attribute\{Autoconfigure};
 use Core\Symfony\DependencyInjection\{Autodiscover, CompilerPass};
 use Core\Symfony\Console\{ListReport};
+use Support\ClassFinder;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\Finder\Finder;
-use ReflectionClass, ReflectionAttribute;
-use InvalidArgumentException, LogicException, BadMethodCallException;
+use LogicException, BadMethodCallException;
 use function Support\classBasename;
-use ReflectionException;
+use ReflectionAttribute;
+use ReflectionClass;
 
 final class AutodiscoverServicesPass extends CompilerPass
 {
@@ -115,7 +115,6 @@ final class AutodiscoverServicesPass extends CompilerPass
                 $basename = classBasename( $className );
 
                 foreach ( $interfaces as $interface ) {
-                    // dump( [ $basename => classBasename( $interface ) ] );
                     if ( \str_starts_with( classBasename( $interface ), $basename ) ) {
                         $container->setAlias( $interface, $serviceId );
                         $registeredServices->add( "auto alias: '{$interface}'" );
@@ -138,134 +137,48 @@ final class AutodiscoverServicesPass extends CompilerPass
 
     private function autodiscoverAnnotatedClasses() : void
     {
-        $discover = new Finder();
+        $discover = new ClassFinder();
 
-        $discover->files();
-
-        $discover->in( "{$this->projectDirectory}/src" );
-
-        $discover->in( "{$this->projectDirectory}/vendor" )
-            ->exclude(
-                [
-                    '*',
-                    'bin',
-                    'composer',
-                    'latte',
-                    'monolog',
-                    'psr',
-                    'symfony',
-                    'tempest',
-                    'twig',
-                ],
+        $discover->withAttribute( Autodiscover::class )
+            ->scan( "{$this->projectDirectory}/src" )
+            ->scan(
+                "{$this->projectDirectory}/vendor",
+                'bin',
+                'doctrine',
+                'composer',
+                'latte',
+                'monolog',
+                'psr',
+                'symfony',
+                'tempest',
+                'twig',
             );
 
-        $discover->files()->name( '*.php' );
+        foreach ( $discover->getFoundClasses() as $className ) {
+            \assert( \class_exists( $className ) );
 
-        foreach ( $discover as $file ) {
-            $this->parseAutodisoveredFile( $file->getPathname() );
-        }
-    }
-
-    private function parseAutodisoveredFile( string $path ) : void
-    {
-        $stream = \fopen( $path, 'r' );
-
-        if ( false === $stream ) {
-            throw new InvalidArgumentException( 'Unable to open file for autodiscovery: '.$path );
-        }
-
-        $className = null;
-        $namespace = null;
-
-        while ( false !== ( $line = \fgets( $stream ) ) ) {
-            $line = \trim( (string) \preg_replace( '/\s+/', ' ', $line ) );
-
-            if ( \str_starts_with( $line, 'namespace ' ) ) {
-                $namespace = \substr( $line, \strlen( 'namespace' ) );
-                $namespace = \trim( $namespace, " \n\r\t\v\0;" );
-            }
-
-            if ( $this->lineContainsDefinition( $line, $className ) ) {
-                break;
-            }
-        }
-
-        \fclose( $stream );
-
-        if ( ! $className ) {
-            return;
-        }
-
-        $className = $namespace.'\\'.$className;
-
-        /*? autoload: false
-         *  Triggering autoload for any and all classes can lead to implementation exceptions
-         *  We are looking at every single .php file, so they could be deprecated or outdated.
-         */
-        if ( ! \class_exists( $className, false ) ) {
-            return;
-        }
-
-        $this->classMap[$className] = $className;
-
-        try {
             $reflection = new ReflectionClass( $className );
             $flags      = ReflectionAttribute::IS_INSTANCEOF;
             $attributes = $reflection->getAttributes( Autodiscover::class, $flags );
-        }
-        catch ( ReflectionException $e ) {
-            $this->console->error( $e->getMessage() );
-            return;
-        }
 
-        if ( empty( $attributes ) ) {
-            return;
-        }
-
-        $attributes = \array_pop( $attributes );
-
-        if ( $reflection->getAttributes( Autoconfigure::class, $flags ) ) {
-            throw new LogicException( "#[Autodiscover] error for {$className}; cannot use #[Autoconfigure] as well." );
-        }
-        if ( $reflection->getAttributes( Lazy::class, $flags ) ) {
-            throw new LogicException( "#[Autodiscover] error for {$className}; cannot use #[Lazy] as well." );
-        }
-
-        /** @var Autodiscover $autodiscover */
-        $autodiscover = $attributes->newInstance();
-
-        $autodiscover->setClassName( $className );
-
-        $this->autodiscover[$className] = $autodiscover;
-    }
-
-    private function lineContainsDefinition( string $line, ?string &$className ) : bool
-    {
-        if ( ! \str_contains( $line, 'class ' ) ) {
-            return false;
-        }
-
-        foreach ( [
-            'final class ',
-            'final readonly class ',
-            'abstract class ',
-            'abstract readonly class ',
-            'readonly class ',
-            'class ',
-        ] as $type ) {
-            if ( \str_starts_with( $line, $type ) ) {
-                $classString = \substr( $line, \strlen( $type ) );
-
-                $className = \strstr( $classString, ' ', true ) ?: $classString;
-
-                if ( ! $className ) {
-                    $this->console->warning( 'Expected a valid class name for class '.$classString );
-                }
-
-                return true;
+            if ( empty( $attributes ) ) {
+                return;
             }
-        }
 
-        return false;
+            $attributes = \array_pop( $attributes );
+
+            if ( $reflection->getAttributes( Autoconfigure::class, $flags ) ) {
+                throw new LogicException(
+                    "#[Autodiscover] error for {$className}; cannot use #[Autoconfigure] as well.",
+                );
+            }
+
+            /** @var Autodiscover $autodiscover */
+            $autodiscover = $attributes->newInstance();
+
+            $autodiscover->setClassName( $className );
+
+            $this->autodiscover[$className] = $autodiscover;
+        }
     }
 }
