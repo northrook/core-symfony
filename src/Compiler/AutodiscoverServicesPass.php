@@ -139,7 +139,7 @@ final class AutodiscoverServicesPass extends CompilerPass
     {
         $discover = new ClassFinder();
 
-        $discover->withAttribute( Autodiscover::class )
+        $discover
             ->scan( "{$this->projectDirectory}/src" )
             ->scan(
                 "{$this->projectDirectory}/vendor",
@@ -155,14 +155,18 @@ final class AutodiscoverServicesPass extends CompilerPass
             );
 
         foreach ( $discover->getFoundClasses() as $className ) {
-            \assert( \class_exists( $className ) );
+            if ( ! \class_exists( $className ) ) {
+                $this->console->error( [__METHOD__, "Class {$className} does not exist."] );
+
+                continue;
+            }
 
             $reflection = new ReflectionClass( $className );
             $flags      = ReflectionAttribute::IS_INSTANCEOF;
             $attributes = $reflection->getAttributes( Autodiscover::class, $flags );
 
             if ( empty( $attributes ) ) {
-                return;
+                continue;
             }
 
             $attributes = \array_pop( $attributes );
