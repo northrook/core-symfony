@@ -7,12 +7,12 @@ namespace Core\Symfony\Interface;
 /**
  * Provides a `method( callback )` argument for {@see Definition::addMethodCall()}
  */
-interface FilterInterface
+interface ArgumentInterface
 {
     /**
      * @param string $method
      *
      * @return array{string, array{...}}
      */
-    public static function callback( string $method ) : array;
+    public static function call( string $method ) : array;
 }
