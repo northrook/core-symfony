@@ -7,7 +7,7 @@ namespace Core\Symfony\Compiler;
 use Symfony\Component\DependencyInjection\{ContainerBuilder, Definition};
 use Symfony\Component\DependencyInjection\Attribute\{Autoconfigure};
 use Core\Symfony\DependencyInjection\{Autodiscover, CompilerPass};
-use Core\Symfony\Console\{ListReport};
+use Core\Symfony\Console\ListReport;
 use Support\ClassFinder;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use LogicException, BadMethodCallException;

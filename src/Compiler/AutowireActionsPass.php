@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Core\Symfony\Compiler;
 
-use Core\Symfony\Console\{ListReport, Output};
 use Override;
+use Core\Symfony\Console\{ListReport, Output};
+use Core\Interface\ActionInterface;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Support\Interface\ActionInterface;
 use function Support\implements_interface;
 
 /**
