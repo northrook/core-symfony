@@ -58,6 +58,22 @@ abstract class CompilerPass implements CompilerPassInterface
         $this->compile( $container );
     }
 
+    final protected function getParameterPath( string $key, ?string $append = null ) : string
+    {
+        $path = $this->parameterBag->get( $key );
+        if ( \is_string( $path ) ) {
+            if ( $append ) {
+                $path .= "/{$append}";
+            }
+
+            return Normalize::path( $path );
+        }
+
+        $message = __METHOD__." {$key} returned ".\gettype( $path ).' from the ParameterBag.';
+
+        throw new UnexpectedValueException( $message );
+    }
+
     /**
      * @param null|false|string[] $services [AUTO]
      *
@@ -65,11 +81,11 @@ abstract class CompilerPass implements CompilerPassInterface
      */
     final protected function getDeclaredClasses( null|false|array $services = AUTO ) : array
     {
-        if ( AUTO === $services ) {
+        if ( $services === AUTO ) {
             $services = $this->container->getServiceIds();
         }
 
-        if ( false === $services ) {
+        if ( $services === false ) {
             $services = [];
         }
 
@@ -109,7 +125,7 @@ abstract class CompilerPass implements CompilerPassInterface
     ) : void {
         $path = $this->path( $fromProjectDir );
 
-        if ( $path->exists() && false === $override ) {
+        if ( $path->exists() && $override === false ) {
             return;
         }
 
@@ -125,7 +141,7 @@ abstract class CompilerPass implements CompilerPassInterface
     ) : void {
         $path = $this->path( $fromProjectDir );
 
-        if ( $path->exists() && false === $override ) {
+        if ( $path->exists() && $override === false ) {
             return;
         }
 
