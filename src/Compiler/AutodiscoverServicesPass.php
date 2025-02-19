@@ -4,16 +4,14 @@ declare(strict_types=1);
 
 namespace Core\Symfony\Compiler;
 
-use Symfony\Component\DependencyInjection\{ContainerBuilder, Definition};
-use Symfony\Component\DependencyInjection\Attribute\{Autoconfigure};
-use Core\Symfony\DependencyInjection\{Autodiscover, CompilerPass};
 use Core\Symfony\Console\ListReport;
-use Support\ClassFinder;
+use Core\Symfony\DependencyInjection\{Autodiscover, CompilerPass};
+use Symfony\Component\DependencyInjection\{ContainerBuilder, Definition};
+use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Support\{ClassFinder, ClassInfo};
 use LogicException, BadMethodCallException;
-use function Support\classBasename;
-use ReflectionAttribute;
-use ReflectionClass;
+use ReflectionAttribute, ReflectionClass;
 
 final class AutodiscoverServicesPass extends CompilerPass
 {
@@ -45,7 +43,7 @@ final class AutodiscoverServicesPass extends CompilerPass
 
             // .. Tags
 
-            if ( null !== $config->tag ) {
+            if ( $config->tag !== null ) {
                 foreach ( $config->tag as $key => $tag ) {
                     if ( \is_string( $tag ) ) {
                         $key = $tag;
@@ -72,50 +70,50 @@ final class AutodiscoverServicesPass extends CompilerPass
 
             // :: Tags
 
-            if ( null !== $config->calls ) {
+            if ( $config->calls !== null ) {
                 $definition->setMethodCalls( $config->calls );
             }
 
-            if ( null !== $config->bind ) {
+            if ( $config->bind !== null ) {
                 $definition->setBindings( $config->bind );
             }
 
-            if ( null !== $config->lazy ) {
+            if ( $config->lazy !== null ) {
                 $definition->setLazy( $config->lazy );
             }
 
-            if ( null !== $config->public ) {
+            if ( $config->public !== null ) {
                 $definition->setPublic( $config->public );
             }
 
-            if ( null !== $config->shared ) {
+            if ( $config->shared !== null ) {
                 $definition->setShared( $config->shared );
             }
 
-            if ( null !== $config->autowire ) {
+            if ( $config->autowire !== null ) {
                 $definition->setAutowired( $config->autowire );
             }
 
-            if ( null !== $config->properties ) {
+            if ( $config->properties !== null ) {
                 $definition->setProperties( $config->properties );
             }
 
-            if ( null !== $config->configurator ) {
+            if ( $config->configurator !== null ) {
                 $definition->setConfigurator( $config->configurator );
             }
 
-            if ( null !== $config->constructor ) {
+            if ( $config->constructor !== null ) {
                 // TODO: Autoconfigure::$config->constructor
                 throw new BadMethodCallException( 'Autoconfigure::$config->constructor Not implemented' );
             }
 
             // null = AUTO
 
-            if ( null === $config->alias ) {
-                $basename = classBasename( $className );
+            if ( $config->alias === null ) {
+                $basename = ClassInfo::basename( $className );
 
                 foreach ( $interfaces as $interface ) {
-                    if ( \str_starts_with( classBasename( $interface ), $basename ) ) {
+                    if ( \str_starts_with( ClassInfo::basename( $interface ), $basename ) ) {
                         $container->setAlias( $interface, $serviceId );
                         $registeredServices->add( "auto alias: '{$interface}'" );
                     }

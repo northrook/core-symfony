@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Core\Symfony\DependencyInjection;
 
 use Core\Symfony\Exception\ServiceContainerException;
-use Northrook\Logger\Log;
+use Symfony\Component\DependencyInjection as Container;
 use Symfony\Component\HttpFoundation\{Request, RequestStack};
-use Symfony\Component\DependencyInjection as Symfony;
+use Northrook\Logger\Log;
 use Throwable;
 
 /**
@@ -15,7 +15,7 @@ use Throwable;
  */
 trait ServiceLocator
 {
-    protected readonly Symfony\ServiceLocator $serviceLocator;
+    protected readonly Container\ServiceLocator $serviceLocator;
 
     /**
      * @final

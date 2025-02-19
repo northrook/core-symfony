@@ -16,23 +16,18 @@ use Symfony\Component\Yaml\Yaml;
 use UnexpectedValueException;
 use const Support\AUTO;
 
+const PLACEHOLDER_ARGS   = [[]];
+const PLACEHOLDER_ARG    = [];
+const PLACEHOLDER_ARRAY  = [];
+const PLACEHOLDER_STRING = '';
+const PLACEHOLDER_NULL   = null;
+const PLACEHOLDER_INT    = 0;
+
 /**
  * Compiler pass abstraction layer for handling config files.
  */
 abstract class CompilerPass implements CompilerPassInterface
 {
-    public const array PLACEHOLDER_ARGS = [[]];
-
-    public const array PLACEHOLDER_ARG = [];
-
-    public const array  PLACEHOLDER_ARRAY = [];
-
-    public const string PLACEHOLDER_STRING = '';
-
-    public const null   PLACEHOLDER_NULL = null;
-
-    public const int    PLACEHOLDER_INT = 0;
-
     protected readonly string $projectDirectory;
 
     protected readonly ContainerBuilder $container;

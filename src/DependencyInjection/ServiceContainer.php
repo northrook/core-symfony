@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Core\Symfony\DependencyInjection;
 
 use Core\Symfony\Interface\ServiceContainerInterface;
-use Northrook\Logger\Log;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Northrook\Logger\Log;
 
 /**
  * @phpstan-require-implements ServiceContainerInterface
@@ -32,17 +32,17 @@ trait ServiceContainer
         \assert( \is_string( $env ) && \is_bool( $debug ) );
 
         // Log a warning if debugging is enabled in production.
-        if ( $debug && 'prod' === $env ) {
+        if ( $debug && $env === 'prod' ) {
             Log::warning( '{Debug} enabled in production.' );
         }
 
         // Stand-alone debug check
-        if ( 'debug' === $is && $debug ) {
+        if ( $is === 'debug' && $debug ) {
             return true;
         }
 
         // True if the environment matches asked, or true if we are debugging anywhere but production
-        if ( $env === $is || ( $is && 'prod' !== $env && $debug ) ) {
+        if ( $env === $is || ( $is && $env !== 'prod' && $debug ) ) {
             return true;
         }
 

@@ -6,7 +6,7 @@ namespace Core\Symfony\DependencyInjection;
 
 use Core\Symfony\Interface\ServiceContainerInterface;
 use Symfony\Contracts\Service\Attribute\Required;
-use Symfony\Component\DependencyInjection as Symfony;
+use Symfony\Component\DependencyInjection as Container;
 
 /**
  * @phpstan-require-implements ServiceContainerInterface
@@ -15,12 +15,12 @@ use Symfony\Component\DependencyInjection as Symfony;
  */
 trait SetServiceLocator
 {
-    protected readonly Symfony\ServiceLocator $serviceLocator;
+    protected readonly Container\ServiceLocator $serviceLocator;
 
     use ServiceLocator;
 
     #[Required]
-    final public function setServiceLocator( Symfony\ServiceLocator $serviceLocator ) : void
+    final public function setServiceLocator( Container\ServiceLocator $serviceLocator ) : void
     {
         $this->serviceLocator = $serviceLocator;
     }
