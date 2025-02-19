@@ -16,13 +16,6 @@ use Symfony\Component\Yaml\Yaml;
 use UnexpectedValueException;
 use const Support\AUTO;
 
-const PLACEHOLDER_ARGS   = [[]];
-const PLACEHOLDER_ARG    = [];
-const PLACEHOLDER_ARRAY  = [];
-const PLACEHOLDER_STRING = '';
-const PLACEHOLDER_NULL   = null;
-const PLACEHOLDER_INT    = 0;
-
 /**
  * Compiler pass abstraction layer for handling config files.
  */
