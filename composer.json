@@ -24,7 +24,8 @@
     "northrook/support": "dev-main",
     "northrook/clerk": "dev-main",
     "northrook/logger": "dev-main",
-    "symfony/http-foundation": "^7.2"
+    "symfony/http-foundation": "^7.2",
+    "northrook/pathfinder": "dev-main"
   },
   "require-dev": {
     "northrook/dev-env": "dev-main"

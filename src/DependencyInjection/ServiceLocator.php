@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Core\Symfony\DependencyInjection;
 
+use Psr\Log\LoggerInterface;
 use Core\Symfony\Exception\ServiceContainerException;
 use Symfony\Component\DependencyInjection as Container;
 use Symfony\Component\HttpFoundation\{Request, RequestStack};
-use Northrook\Logger\Log;
 use Throwable;
 
 /**
@@ -40,11 +40,16 @@ trait ServiceLocator
         catch ( Throwable $exception ) {
             $exception = new ServiceContainerException( $get, previous : $exception );
 
-            $service = $nullable ? null : throw $exception;
-
-            if ( $this->applicationEnvironment( 'dev' ) ) {
-                Log::exception( $exception );
+            if ( \property_exists( $this, 'logger' )
+                 && $this->logger instanceof LoggerInterface
+            ) {
+                $this->logger->critical(
+                    '{class}::serviceLocator failed: {message}',
+                    ['class' => $this::class, 'message' => $exception->getMessage()],
+                );
             }
+
+            $service = $nullable ? null : throw $exception;
         }
 
         return $service;

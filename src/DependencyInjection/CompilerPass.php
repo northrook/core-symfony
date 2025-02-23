@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace Core\Symfony\DependencyInjection;
 
+use Core\Pathfinder\Path;
 use JetBrains\PhpStorm\Language;
-use Support\{FileInfo, Normalize, Time};
+use Support\Time;
 use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Style\SymfonyStyle;
@@ -14,6 +15,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Yaml\Yaml;
 use UnexpectedValueException;
+use function Support\normalizePath;
 use const Support\AUTO;
 
 /**
@@ -54,7 +56,7 @@ abstract class CompilerPass implements CompilerPassInterface
                 $path .= "/{$append}";
             }
 
-            return Normalize::path( $path );
+            return normalizePath( $path );
         }
 
         $message = __METHOD__." {$key} returned ".\gettype( $path ).' from the ParameterBag.';
@@ -93,9 +95,9 @@ abstract class CompilerPass implements CompilerPassInterface
         );
     }
 
-    protected function path( string $fromProjectDir ) : FileInfo
+    protected function path( string $fromProjectDir ) : Path
     {
-        return new FileInfo( "{$this->projectDirectory}/{$fromProjectDir}" );
+        return new Path( "{$this->projectDirectory}/{$fromProjectDir}" );
     }
 
     /**
@@ -146,7 +148,7 @@ abstract class CompilerPass implements CompilerPassInterface
                 && \is_writable( $projectDirectory ),
         );
 
-        return Normalize::path( $projectDirectory );
+        return normalizePath( $projectDirectory );
     }
 
     private function parsePhpString(

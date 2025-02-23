@@ -9,7 +9,6 @@ use Core\Symfony\Console\{ListReport, Output};
 use Core\Interface\ActionInterface;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use function Support\implements_interface;
 
 /**
  * Classes implementing the {@see ActionInterface} are automatically `autowired` and tagged with `controller.service_arguments`.
@@ -38,7 +37,7 @@ final class AutowireActionsPass implements CompilerPassInterface
                 continue;
             }
 
-            if ( implements_interface( $service, ActionInterface::class ) ) {
+            if ( \is_subclass_of( $service, ActionInterface::class ) ) {
                 $definition->setAutowired( true );
                 $definition->addTag( 'controller.service_arguments' );
 
