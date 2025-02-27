@@ -19,16 +19,16 @@
   "require": {
     "php": ">=8.3",
     "symfony/dependency-injection": "@stable",
+    "symfony/http-foundation": "@stable",
     "symfony/yaml": "@stable",
     "symfony/cache": "@stable",
-    "northrook/support": "dev-main",
+    "northrook/core": "dev-main",
     "northrook/clerk": "dev-main",
     "northrook/logger": "dev-main",
-    "symfony/http-foundation": "^7.2",
     "northrook/pathfinder": "dev-main"
   },
   "require-dev": {
-    "northrook/dev-env": "dev-main"
+    "northrook/dev": "dev-main"
   },
   "scripts": {
     "phpstan": "vendor/bin/phpstan analyse"
