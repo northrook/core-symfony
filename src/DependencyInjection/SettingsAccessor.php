@@ -15,18 +15,18 @@ trait SettingsAccessor
     ];
 
     /**
-     * @internal
+     * @template Setting of null|array<array-key, scalar>|scalar
      *
-     * @param string                               $key
-     * @param null|array<array-key, scalar>|scalar $default
+     * @param string                                   $key
+     * @param null|array|bool|float|int|Setting|string $default
      *
-     * @return null|array<array-key, scalar>|scalar
+     * @return null|array|bool|float|int|string
+     * @phpstan-return Setting
      */
     final protected function getSetting(
         string                           $key,
         null|array|bool|float|int|string $default,
     ) : null|array|bool|float|int|string {
-        // TODO: [m] Use a logger or dump statement here to sniff out all desired settings
         return self::DEFAULTS[$key] ?? $default;
     }
 
@@ -37,7 +37,7 @@ trait SettingsAccessor
      *
      * @return bool|string
      */
-    #[Deprecated( 'Use getSetting() instead')]
+    #[Deprecated( 'Use getSetting() instead' )]
     final protected function settings( string $get ) : string|bool
     {
         return self::DEFAULTS[$get] ?? false;
