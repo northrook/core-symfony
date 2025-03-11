@@ -16,7 +16,7 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Yaml\Yaml;
 use UnexpectedValueException;
 use function Support\normalizePath;
-use const Support\AUTO;
+use const Support\INFER;
 
 /**
  * Compiler pass abstraction layer for handling config files.
@@ -69,9 +69,9 @@ abstract class CompilerPass implements CompilerPassInterface
      *
      * @return array<int, class-string>
      */
-    final protected function getDeclaredClasses( null|false|array $services = AUTO ) : array
+    final protected function getDeclaredClasses( null|false|array $services = INFER ) : array
     {
-        if ( $services === AUTO ) {
+        if ( $services === INFER ) {
             $services = $this->container->getServiceIds();
         }
 

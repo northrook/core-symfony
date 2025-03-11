@@ -12,6 +12,7 @@ trait SettingsAccessor
 
     private const array DEFAULTS = [
         'auth.onboarding' => true,
+        'toast.timeout'   => 6_400,
     ];
 
     /**

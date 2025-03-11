@@ -7,8 +7,7 @@ namespace Core\Symfony\DependencyInjection;
 use Attribute;
 use Symfony\Component\DependencyInjection\Argument\TaggedIteratorArgument;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ReferenceConfigurator;
-use const Support\AUTO;
-
+use const Support\{AUTO, INFER};
 #[Attribute( Attribute::TARGET_CLASS )]
 class Autodiscover
 {
@@ -64,7 +63,7 @@ class Autodiscover
      * @param null|string                                                             $constructor
      */
     public function __construct(
-        ?string                           $serviceID = AUTO,
+        ?string                           $serviceID = INFER,
         null|string|array                 $tag = null,
         public readonly ?array            $calls = null,
         public readonly ?array            $bind = null,
