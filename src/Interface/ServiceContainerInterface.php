@@ -11,6 +11,8 @@ interface ServiceContainerInterface
     /**
      * @template T of ServiceCollectionInterface
      *
+     * @internal
+     *
      * @param Container\ServiceLocator<T> $serviceLocator
      *
      * @return void

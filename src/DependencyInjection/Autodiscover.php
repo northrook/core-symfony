@@ -8,6 +8,7 @@ use Attribute;
 use Symfony\Component\DependencyInjection\Argument\TaggedIteratorArgument;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ReferenceConfigurator;
 use const Support\{AUTO, INFER};
+
 #[Attribute( Attribute::TARGET_CLASS )]
 class Autodiscover
 {
