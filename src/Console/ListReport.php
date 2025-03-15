@@ -21,9 +21,8 @@ final class ListReport
         private readonly string $note = '┊',
         private readonly string $add = '+',
         private readonly string $remove = '-',
-        private readonly string $warning = '◇',
-        private readonly string $error = '◈',
-        private readonly string $separator = '└',
+        private readonly string $warning = '⋄',
+        private readonly string $error = '!',
     ) {
         if ( \str_contains( $title, '::' ) ) {
             $title = \trim( \strrchr( $title, '\\' ) ?: $title, '\\' );
@@ -39,8 +38,9 @@ final class ListReport
     {
         $this->stopwatch->lap();
         $type = match ( $type ) {
-            'note'    => Output::format( $this->note, 'comment' ),
-            'warning' => Output::format( $this->warning, 'warning' ),
+            'note'    => Output::format( $this->note, 'fg=gray;options=bold' ),
+            'skip'    => Output::format( $this->note, 'fg=green' ),
+            'warning' => Output::format( $this->warning, 'fg=yellow;options=bold' ),
             'error'   => Output::format( $this->error, 'error' ),
             'add'     => Output::format( $this->add, 'info' ),
             'remove'  => Output::format( $this->remove, 'error' ),
@@ -54,6 +54,11 @@ final class ListReport
         $this->addItem( $message );
     }
 
+    public function skip( string $message ) : void
+    {
+        $this->addItem( $message, 'skip' );
+    }
+
     public function note( string $message ) : void
     {
         $this->addItem( $message, 'note' );
@@ -61,12 +66,12 @@ final class ListReport
 
     public function warning( string $message ) : void
     {
-        $this->addItem( $message, 'note' );
+        $this->addItem( $message, 'warning' );
     }
 
     public function error( string $message ) : void
     {
-        $this->addItem( $message, 'note' );
+        $this->addItem( $message, 'error' );
     }
 
     public function add( string $message ) : void
@@ -81,7 +86,7 @@ final class ListReport
 
     public function separator() : void
     {
-        $this->items[] = Output::format( $this->separator, 'comment' );
+        $this->items[] = '';
     }
 
     public function output() : void
@@ -95,8 +100,10 @@ final class ListReport
 
         $time = $this->stopwatch->stop()->getDuration();
 
-        $message = Output::format( (string) $time, 'fg=bright-green' );
+        $style_time = 'fg=gray;options=bold';
+        $style_fade = 'fg=gray;';
 
+        $message = " <{$style_time}>{$time}</{$style_time}><{$style_fade}>ms</{$style_fade}>";
         $message .= Output::format( $this->title, 'fg=bright-white;options=bold' );
 
         Output::printLine( $message );

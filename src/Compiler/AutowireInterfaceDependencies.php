@@ -47,7 +47,7 @@ final class AutowireInterfaceDependencies extends CompilerPass
 
         $this->report->item( 'ActionInterface' );
 
-        foreach ( $this->container->getDefinitions() as $definition ) {
+        foreach ( $this->container->getDefinitions() as $service => $definition ) {
             $class = $definition->getClass();
             if ( $this->skip( $class, ActionInterface::class ) ) {
                 continue;
@@ -56,7 +56,7 @@ final class AutowireInterfaceDependencies extends CompilerPass
             $definition->setAutowired( true );
             $definition->addTag( 'controller.service_arguments' );
 
-            $this->report->add( $class );
+            $this->report->add( $service );
         }
 
         $this->report->separator();
@@ -73,7 +73,7 @@ final class AutowireInterfaceDependencies extends CompilerPass
 
         $this->report->item( 'LoggerAwareInterface' );
 
-        foreach ( $this->container->getDefinitions() as $definition ) {
+        foreach ( $this->container->getDefinitions() as $service => $definition ) {
             $class = $definition->getClass();
 
             if ( $this->skip( $class, LoggerAwareInterface::class ) ) {
@@ -94,14 +94,30 @@ final class AutowireInterfaceDependencies extends CompilerPass
             if ( ( $docBlock && \str_contains( $docBlock, '@deprecated' ) )
                  || $reflect->getAttributes( Deprecated::class )
             ) {
-                $this->console->warning( 'setLogger deprecated for: '.$class );
+                $this->report->warning( 'setLogger deprecated for: '.$class );
+
+                continue;
+            }
+
+            $alreadySet = false;
+
+            foreach ( $definition->getMethodCalls() as $methodCall ) {
+                if ( $methodCall[0] === 'setLogger' ) {
+                    $alreadySet = true;
+
+                    continue;
+                }
+            }
+
+            if ( $alreadySet ) {
+                $this->report->warning( 'setLogger already set for: '.$service );
 
                 continue;
             }
 
             $definition->addMethodCall( 'setLogger', [new Reference( 'logger' )] );
 
-            $this->report->add( $class );
+            $this->report->add( $service );
         }
 
         $this->report->separator();
@@ -119,7 +135,7 @@ final class AutowireInterfaceDependencies extends CompilerPass
 
         $this->report->item( 'SettableProfilerInterface' );
 
-        foreach ( $this->container->getDefinitions() as $definition ) {
+        foreach ( $this->container->getDefinitions() as $service => $definition ) {
             $class = $definition->getClass();
 
             if ( $this->skip( $class, SettableProfilerInterface::class ) ) {
@@ -132,7 +148,7 @@ final class AutowireInterfaceDependencies extends CompilerPass
             );
 
             $definition->addMethodCall( 'setProfiler', [$stopwatch] );
-            $this->report->add( $class );
+            $this->report->add( $service );
         }
 
         $this->report->separator();
