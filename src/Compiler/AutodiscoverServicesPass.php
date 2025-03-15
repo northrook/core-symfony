@@ -21,119 +21,138 @@ final class AutodiscoverServicesPass extends CompilerPass
     /** @var Autodiscover[] */
     protected array $autodiscover = [];
 
+    private readonly ListReport $report;
+
     public function compile( ContainerBuilder $container ) : void
     {
-        $this->autodiscoverAnnotatedClasses();
+        $this->report = new ListReport( __METHOD__ );
 
-        $registeredServices = new ListReport( __METHOD__ );
+        $this
+            ->autodiscoverAnnotatedClasses()
+            ->autodiscover();
 
-        foreach ( $this->autodiscover as $className => $config ) {
-            $serviceId = $config->serviceID;
+        $this->report->output();
+    }
 
-            $registeredServices->item( $serviceId );
+    protected function getDefinition( string $serviceId, string $className ) : Definition
+    {
+        if ( $this->container->hasDefinition( $serviceId ) ) {
+            return $this->container->getDefinition( $serviceId );
+        }
+        return new Definition( $className );
+    }
 
-            if ( $container->hasDefinition( $serviceId ) ) {
-                $definition = $container->getDefinition( $serviceId );
-            }
-            else {
-                $definition = new Definition( $className );
-            }
+    private function autodiscover() : self
+    {
+        foreach ( $this->autodiscover as $className => $autodiscovered ) {
+            $serviceId = $autodiscovered->serviceID;
 
+            $this->report->item( "Registered: {$serviceId}" );
+
+            $definition = $this->getDefinition( $serviceId, $className );
             $interfaces = \class_implements( $className ) ?: [];
 
             // .. Tags
 
-            if ( $config->tag !== null ) {
-                foreach ( $config->tag as $key => $tag ) {
-                    if ( \is_string( $tag ) ) {
-                        $key = $tag;
-                        $tag = []; // empty properties
+            if ( $autodiscovered->tag !== null ) {
+                foreach ( $autodiscovered->tag as $tagName => $attributes ) {
+                    if ( \is_string( $attributes ) ) {
+                        $tagName    = $attributes;
+                        $attributes = []; // empty properties
                     }
-                    elseif ( \is_array( $tag ) ) {
+                    elseif ( \is_array( $attributes ) ) {
                         \assert(
-                            \is_string( $key ),
+                            \is_string( $tagName ),
                             'The Autodiscover->tag properties should be nested. Was provided: '.\print_r(
-                                $config->tag,
+                                $autodiscovered->tag,
                                 true,
                             ),
                         );
                     }
-                    $definition->addTag( $key, $tag );
-                    $registeredServices->add( "tagged: '{$key}'" );
+                    $definition->addTag( $tagName, $attributes );
+                    $this->report->add( "tagged: '{$tagName}'" );
+
+                    foreach ( $attributes as $attribute => $value ) {
+                        $this->report->line( "[{$attribute} => {$value}]" );
+                    }
                 }
             }
 
-            if ( \in_array( EventSubscriberInterface::class, $interfaces ) ) {
+            if ( \in_array( EventSubscriberInterface::class, $interfaces )
+                 && $definition->hasTag( 'kernel.event_subscriber' ) === false
+            ) {
                 $definition->addTag( 'kernel.event_subscriber' );
-                $registeredServices->add( "auto tagged: 'kernel.event_subscriber'" );
+                $this->report->add( "auto tagged: 'kernel.event_subscriber'" );
             }
 
             // :: Tags
 
-            if ( $config->calls !== null ) {
-                $definition->setMethodCalls( $config->calls );
+            if ( $autodiscovered->calls !== null ) {
+                $definition->setMethodCalls( $autodiscovered->calls );
             }
 
-            if ( $config->bind !== null ) {
-                $definition->setBindings( $config->bind );
+            if ( $autodiscovered->bind !== null ) {
+                $definition->setBindings( $autodiscovered->bind );
             }
 
-            if ( $config->lazy !== null ) {
-                $definition->setLazy( $config->lazy );
+            if ( $autodiscovered->lazy !== null ) {
+                $definition->setLazy( $autodiscovered->lazy );
             }
 
-            if ( $config->public !== null ) {
-                $definition->setPublic( $config->public );
+            if ( $autodiscovered->public !== null ) {
+                $definition->setPublic( $autodiscovered->public );
             }
 
-            if ( $config->shared !== null ) {
-                $definition->setShared( $config->shared );
+            if ( $autodiscovered->shared !== null ) {
+                $definition->setShared( $autodiscovered->shared );
             }
 
-            if ( $config->autowire !== null ) {
-                $definition->setAutowired( $config->autowire );
+            if ( $autodiscovered->autowire !== null ) {
+                $definition->setAutowired( $autodiscovered->autowire );
             }
 
-            if ( $config->properties !== null ) {
-                $definition->setProperties( $config->properties );
+            if ( $autodiscovered->properties !== null ) {
+                $definition->setProperties( $autodiscovered->properties );
             }
 
-            if ( $config->configurator !== null ) {
-                $definition->setConfigurator( $config->configurator );
+            if ( $autodiscovered->configurator !== null ) {
+                $definition->setConfigurator( $autodiscovered->configurator );
             }
 
-            if ( $config->constructor !== null ) {
+            if ( $autodiscovered->constructor !== null ) {
                 // TODO: Autoconfigure::$config->constructor
                 throw new BadMethodCallException( 'Autoconfigure::$config->constructor Not implemented' );
             }
 
             // null = AUTO
 
-            if ( $config->alias === null ) {
+            if ( $autodiscovered->alias === null ) {
                 $basename = ClassInfo::basename( $className );
 
                 foreach ( $interfaces as $interface ) {
                     if ( \str_starts_with( ClassInfo::basename( $interface ), $basename ) ) {
-                        $container->setAlias( $interface, $serviceId );
-                        $registeredServices->add( "auto alias: '{$interface}'" );
+                        $this->container->setAlias( $interface, $serviceId );
+                        $this->report->add( "auto alias: '{$interface}'" );
                     }
                 }
             }
 
-            if ( \is_array( $config->alias ) ) {
-                foreach ( $config->alias as $alias ) {
-                    $container->setAlias( $alias, $serviceId );
-                    $registeredServices->add( "alias: '{$alias}'" );
+            if ( \is_array( $autodiscovered->alias ) ) {
+                foreach ( $autodiscovered->alias as $alias ) {
+                    $this->container->setAlias( $alias, $serviceId );
+                    $this->report->add( "alias: '{$alias}'" );
                 }
             }
 
-            $container->setDefinition( $serviceId, $definition );
+            $this->container->setDefinition( $serviceId, $definition );
+
+            $this->report->separator();
         }
 
-        $registeredServices->output();
+        return $this;
     }
 
-    private function autodiscoverAnnotatedClasses() : void
+    private function autodiscoverAnnotatedClasses() : self
     {
         $discover = new ClassFinder();
 
@@ -182,5 +201,7 @@ final class AutodiscoverServicesPass extends CompilerPass
 
             $this->autodiscover[$className] = $autodiscover;
         }
+
+        return $this;
     }
 }
