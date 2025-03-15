@@ -21,6 +21,9 @@ final class ListReport
         private readonly string $note = '┊',
         private readonly string $add = '+',
         private readonly string $remove = '-',
+        private readonly string $warning = '◇',
+        private readonly string $error = '◈',
+        private readonly string $separator = '└',
     ) {
         if ( \str_contains( $title, '::' ) ) {
             $title = \trim( \strrchr( $title, '\\' ) ?: $title, '\\' );
@@ -36,10 +39,12 @@ final class ListReport
     {
         $this->stopwatch->lap();
         $type = match ( $type ) {
-            'note'   => Output::format( $this->note, 'comment' ),
-            'add'    => Output::format( $this->add, 'info' ),
-            'remove' => Output::format( $this->remove, 'error' ),
-            default  => Output::format( $this->marker, 'fg=bright-green' ),
+            'note'    => Output::format( $this->note, 'comment' ),
+            'warning' => Output::format( $this->warning, 'warning' ),
+            'error'   => Output::format( $this->error, 'error' ),
+            'add'     => Output::format( $this->add, 'info' ),
+            'remove'  => Output::format( $this->remove, 'error' ),
+            default   => Output::format( $this->marker, 'fg=bright-green' ),
         };
         $this->items[] = $type.$message;
     }
@@ -54,6 +59,16 @@ final class ListReport
         $this->addItem( $message, 'note' );
     }
 
+    public function warning( string $message ) : void
+    {
+        $this->addItem( $message, 'note' );
+    }
+
+    public function error( string $message ) : void
+    {
+        $this->addItem( $message, 'note' );
+    }
+
     public function add( string $message ) : void
     {
         $this->addItem( $message, 'add' );
@@ -62,6 +77,11 @@ final class ListReport
     public function remove( string $message ) : void
     {
         $this->addItem( $message, 'remove' );
+    }
+
+    public function separator() : void
+    {
+        $this->items[] = Output::format( $this->separator, 'comment' );
     }
 
     public function output() : void
