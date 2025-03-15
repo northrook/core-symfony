@@ -23,9 +23,9 @@
     "symfony/yaml": "@stable",
     "symfony/cache": "@stable",
     "northrook/core": "dev-main",
-    "northrook/clerk": "dev-main",
     "northrook/logger": "dev-main",
-    "northrook/pathfinder": "dev-main"
+    "northrook/pathfinder": "dev-main",
+    "northrook/support": "dev-main"
   },
   "require-dev": {
     "northrook/dev": "dev-main"

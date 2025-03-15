@@ -4,71 +4,78 @@ declare(strict_types=1);
 
 namespace Core\Symfony\Console;
 
-use Northrook\{Clerk, ClerkEvent};
+use Symfony\Component\Stopwatch\{Stopwatch, StopwatchEvent};
 
 final class ListReport
 {
-    public readonly string $title;
-
     /** @var string[] */
     private array $items = [];
 
-    private readonly string $marker;
+    private readonly StopwatchEvent $stopwatch;
 
-    private readonly string $note;
+    public readonly string $title;
 
-    private readonly string $add;
-
-    private readonly string $remove;
-
-    private readonly ?ClerkEvent $clerk;
-
-    public function __construct( string $title, string $add = '+', string $remove = '-' )
-    {
+    public function __construct(
+        string                  $title,
+        private readonly string $marker = '│',
+        private readonly string $note = '┊',
+        private readonly string $add = '+',
+        private readonly string $remove = '-',
+    ) {
         if ( \str_contains( $title, '::' ) ) {
             $title = \trim( \strrchr( $title, '\\' ) ?: $title, '\\' );
         }
-        $this->clerk  = Clerk::event( $title, 'console' );
-        $this->title  = $title;
-        $this->marker = Output::format( '│', 'fg=bright-green' );
-        $this->note   = Output::format( '┊', 'comment' );
-        $this->add    = Output::format( $add, 'info' );
-        $this->remove = Output::format( $remove, 'error' );
+        $this->title     = $title;
+        $this->stopwatch = ( new Stopwatch() )->start(
+            name     : $this->title,
+            category : 'cli_list_report',
+        );
+    }
+
+    private function addItem( string $message, string $type = 'marker' ) : void
+    {
+        $this->stopwatch->lap();
+        $type = match ( $type ) {
+            'note'   => Output::format( $this->note, 'comment' ),
+            'add'    => Output::format( $this->add, 'info' ),
+            'remove' => Output::format( $this->remove, 'error' ),
+            default  => Output::format( $this->marker, 'fg=bright-green' ),
+        };
+        $this->items[] = $type.$message;
     }
 
     public function item( string $message ) : void
     {
-        $this->items[] = $this->marker.$message;
+        $this->addItem( $message );
     }
 
     public function note( string $message ) : void
     {
-        $this->items[] = $this->note.$message;
+        $this->addItem( $message, 'note' );
     }
 
     public function add( string $message ) : void
     {
-        $this->items[] = $this->add.$message;
+        $this->addItem( $message, 'add' );
     }
 
     public function remove( string $message ) : void
     {
-        $this->items[] = $this->remove.$message;
+        $this->addItem( $message, 'remove' );
     }
 
     public function output() : void
     {
         if ( empty( $this->items ) ) {
+            $this->stopwatch->stop();
             return;
         }
+
         Output::symfonyStyle()->newLine();
 
-        $message = '';
+        $time = $this->stopwatch->stop()->getDuration();
 
-        if ( $this->clerk ) {
-            $time = $this->clerk->getDuration( true );
-            $message .= Output::format( (string) $time, 'fg=bright-green' );
-        }
+        $message = Output::format( (string) $time, 'fg=bright-green' );
 
         $message .= Output::format( $this->title, 'fg=bright-white;options=bold' );
 
