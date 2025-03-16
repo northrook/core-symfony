@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Core\Symfony\Compiler;
 
-use Core\Profiler\Interface\SettableProfilerInterface;
+use Core\Profiler\Interface\Profilable;
 use Core\Symfony\DependencyInjection\CompilerPass;
 use JetBrains\PhpStorm\Deprecated;
 use Core\Symfony\Console\{ListReport};
@@ -99,17 +99,15 @@ final class AutowireInterfaceDependencies extends CompilerPass
                 continue;
             }
 
-            $alreadySet = false;
+            $callRegistered = false;
 
             foreach ( $definition->getMethodCalls() as $methodCall ) {
                 if ( $methodCall[0] === 'setLogger' ) {
-                    $alreadySet = true;
-
-                    continue;
+                    $callRegistered = true;
                 }
             }
 
-            if ( $alreadySet ) {
+            if ( $callRegistered ) {
                 $this->report->warning( 'setLogger already set for: '.$service );
 
                 continue;
@@ -126,7 +124,7 @@ final class AutowireInterfaceDependencies extends CompilerPass
 
     private function settableProfilerInterface() : self
     {
-        if ( ! \interface_exists( SettableProfilerInterface::class ) ) {
+        if ( ! \interface_exists( Profilable::class ) ) {
             $this->report->error(
                 "\Core\Profiler\Interface\SettableProfilerInterface does not exist; ".__METHOD__.' skipped.',
             );
@@ -138,7 +136,7 @@ final class AutowireInterfaceDependencies extends CompilerPass
         foreach ( $this->container->getDefinitions() as $service => $definition ) {
             $class = $definition->getClass();
 
-            if ( $this->skip( $class, SettableProfilerInterface::class ) ) {
+            if ( $this->skip( $class, Profilable::class ) ) {
                 continue;
             }
 
