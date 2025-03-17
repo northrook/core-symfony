@@ -65,6 +65,25 @@ abstract class CompilerPass implements CompilerPassInterface
     }
 
     /**
+     * @param string ...$tag
+     *
+     * @return string[]
+     */
+    final protected function taggedServiceIds( string ...$tag ) : array
+    {
+        $serviceIds = [];
+
+        foreach ( $tag as $name ) {
+            $serviceIds = [
+                ...$serviceIds,
+                ...$this->container->findTaggedServiceIds( $name ),
+            ];
+        }
+
+        return \array_keys( $serviceIds );
+    }
+
+    /**
      * @param null|false|string[] $services [AUTO]
      *
      * @return array<int, class-string>
