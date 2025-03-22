@@ -36,7 +36,7 @@ final class SettingsProvider implements SettingsProviderInterface, LoggerAwareIn
         float|array|bool|int|string|null $default,
     ) : null|array|bool|float|int|string {
         \assert(
-            ! empty( $key ) && \ctype_alpha( \str_replace( ['.', '-'], '', $key ) ),
+            $this->isValidKey( $key ),
             "Invalid settings key '{$key}'. Must be non-empty and contain only letters, numbers, dots and dashes.",
         );
 
@@ -55,8 +55,8 @@ final class SettingsProvider implements SettingsProviderInterface, LoggerAwareIn
     public function restore( string $setting, int $versionId ) : bool
     {
         $this->logger?->alert(
-                'TODO: {method} not yet implemented in {class}.',
-                [':method' => __METHOD__, ':class' => __CLASS__],
+            'TODO: {method} not yet implemented in {class}.',
+            [':method' => __METHOD__, ':class' => __CLASS__],
         );
         return false;
     }
@@ -64,16 +64,16 @@ final class SettingsProvider implements SettingsProviderInterface, LoggerAwareIn
     public function add( array $parameters ) : void
     {
         $this->logger?->alert(
-                'TODO: {method} not yet implemented in {class}.',
-                [':method' => __METHOD__, ':class' => __CLASS__],
+            'TODO: {method} not yet implemented in {class}.',
+            [':method' => __METHOD__, ':class' => __CLASS__],
         );
     }
 
     public function has( string $setting ) : bool
     {
         $this->logger?->alert(
-                'TODO: {method} not yet implemented in {class}.',
-                [':method' => __METHOD__, ':class' => __CLASS__],
+            'TODO: {method} not yet implemented in {class}.',
+            [':method' => __METHOD__, ':class' => __CLASS__],
         );
         return false;
     }
@@ -81,8 +81,8 @@ final class SettingsProvider implements SettingsProviderInterface, LoggerAwareIn
     public function all() : array
     {
         $this->logger?->alert(
-                'TODO: {method} not yet implemented in {class}.',
-                [':method' => __METHOD__, ':class' => __CLASS__],
+            'TODO: {method} not yet implemented in {class}.',
+            [':method' => __METHOD__, ':class' => __CLASS__],
         );
         return [];
     }
@@ -90,24 +90,29 @@ final class SettingsProvider implements SettingsProviderInterface, LoggerAwareIn
     public function reset() : void
     {
         $this->logger?->alert(
-                'TODO: {method} not yet implemented in {class}.',
-                [':method' => __METHOD__, ':class' => __CLASS__],
+            'TODO: {method} not yet implemented in {class}.',
+            [':method' => __METHOD__, ':class' => __CLASS__],
         );
     }
 
     public function remove( string $name ) : void
     {
         $this->logger?->alert(
-                'TODO: {method} not yet implemented in {class}.',
-                [':method' => __METHOD__, ':class' => __CLASS__],
+            'TODO: {method} not yet implemented in {class}.',
+            [':method' => __METHOD__, ':class' => __CLASS__],
         );
     }
 
     public function set( string $name, UnitEnum|float|array|bool|int|string|null $value ) : void
     {
         $this->logger?->alert(
-                'TODO: {method} not yet implemented in {class}.',
-                [':method' => __METHOD__, ':class' => __CLASS__],
+            'TODO: {method} not yet implemented in {class}.',
+            [':method' => __METHOD__, ':class' => __CLASS__],
         );
+    }
+
+    private function isValidKey( string $string ) : bool
+    {
+        return ! empty( $string ) && \ctype_alpha( \str_replace( ['.', '-', '_'], '', $string ) );
     }
 }
