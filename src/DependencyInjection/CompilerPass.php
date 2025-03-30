@@ -15,7 +15,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Yaml\Yaml;
 use UnexpectedValueException;
-use function Support\normalizePath;
+use function Support\normalize_path;
 use const Support\INFER;
 
 /**
@@ -56,7 +56,7 @@ abstract class CompilerPass implements CompilerPassInterface
                 $path .= "/{$append}";
             }
 
-            return normalizePath( $path );
+            return normalize_path( $path );
         }
 
         $message = __METHOD__." {$key} returned ".\gettype( $path ).' from the ParameterBag.';
@@ -167,7 +167,7 @@ abstract class CompilerPass implements CompilerPassInterface
                 && \is_writable( $projectDirectory ),
         );
 
-        return normalizePath( $projectDirectory );
+        return normalize_path( $projectDirectory );
     }
 
     private function parsePhpString(
