@@ -197,7 +197,7 @@ final class AutodiscoverServicesPass extends CompilerPass
             /** @var Autodiscover $autodiscover */
             $autodiscover = $attributes->newInstance();
 
-            $autodiscover->setClassName( $className );
+            $autodiscover->registerService( $className );
 
             $this->autodiscover[$className] = $autodiscover;
         }

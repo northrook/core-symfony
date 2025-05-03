@@ -92,7 +92,14 @@ class Autodiscover
         };
     }
 
-    final public function setClassName( string $className ) : void
+    /**
+     * @internal
+     *
+     * @param class-string $className
+     *
+     * @return void
+     */
+    final public function registerService( string $className ) : void
     {
         \assert(
             \class_exists( $className ),
