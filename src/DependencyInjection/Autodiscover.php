@@ -14,7 +14,7 @@ class Autodiscover
 {
     public readonly string $className;
 
-    public readonly string $serviceID;
+    public readonly string $serviceId;
 
     /** @var null|array<array-key, array<array-key, string>|string> */
     public readonly ?array $tag;
@@ -50,7 +50,7 @@ class Autodiscover
      * ## `$configurator`
      * ## `$constructor`
      *
-     * @param null|string                                                             $serviceID
+     * @param null|string                                                             $serviceId
      * @param null|array<array-key, array<string, string>|string>|string              $tag
      * @param null|array<string, ReferenceConfigurator|string|TaggedIteratorArgument> $calls
      * @param null|array<string, string>                                              $bind
@@ -64,7 +64,7 @@ class Autodiscover
      * @param null|string                                                             $constructor
      */
     public function __construct(
-        ?string                           $serviceID = INFER,
+        ?string                           $serviceId = INFER,
         null|string|array                 $tag = null,
         public readonly ?array            $calls = null,
         public readonly ?array            $bind = null,
@@ -77,8 +77,8 @@ class Autodiscover
         public readonly null|string|array $configurator = null,
         public readonly ?string           $constructor = null,
     ) {
-        if ( $serviceID ) {
-            $this->serviceID = $serviceID;
+        if ( $serviceId ) {
+            $this->serviceId = $serviceId;
         }
 
         $this->tag = match ( \is_string( $tag ) ) {
@@ -99,15 +99,23 @@ class Autodiscover
             $this::class." expected a valid \$className; {$className} does not exist.",
         );
         $this->className ??= $className;
-        $this->serviceID ??= $this->serviceID();
+        $this->serviceId ??= $this->serviceId();
+        $this->register();
     }
+
+    /**
+     * Run on discovery when the `className` and `serviceID` have been set.
+     *
+     * @return void
+     */
+    protected function register() : void {}
 
     /**
      * Override this method to filter the `serviceID` string.
      *
      * @return string
      */
-    protected function serviceID() : string
+    protected function serviceId() : string
     {
         return $this->className;
     }

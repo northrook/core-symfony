@@ -45,7 +45,7 @@ final class AutodiscoverServicesPass extends CompilerPass
     private function autodiscover() : self
     {
         foreach ( $this->autodiscover as $className => $autodiscovered ) {
-            $serviceId = $autodiscovered->serviceID;
+            $serviceId = $autodiscovered->serviceId;
 
             $this->report->item( "Registered: {$serviceId}" );
 
