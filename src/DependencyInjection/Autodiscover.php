@@ -7,11 +7,20 @@ namespace Core\Symfony\DependencyInjection;
 use Attribute;
 use Symfony\Component\DependencyInjection\Argument\TaggedIteratorArgument;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ReferenceConfigurator;
+use function Support\normalize_path;
+use InvalidArgumentException;
+use Throwable;
+use ValueError;
+use ReflectionClass;
 use const Support\{AUTO, INFER};
 
+/**
+ * @template T of object
+ */
 #[Attribute( Attribute::TARGET_CLASS )]
 class Autodiscover
 {
+    /** @var class-string<T> */
     public readonly string $className;
 
     public readonly string $serviceId;
@@ -95,7 +104,7 @@ class Autodiscover
     /**
      * @internal
      *
-     * @param class-string $className
+     * @param class-string<T> $className
      *
      * @return void
      */
@@ -108,6 +117,43 @@ class Autodiscover
         $this->className ??= $className;
         $this->serviceId ??= $this->serviceId();
         $this->register();
+    }
+
+    /**
+     * @return ReflectionClass<T>
+     */
+    final public function getReflectionClass() : ReflectionClass
+    {
+        \assert(
+            \class_exists( $this->className ),
+            "Class '{$this->className}' does not exist.",
+        );
+
+        return new ReflectionClass( $this->className );
+    }
+
+    /**
+     * @return string
+     */
+    final public function getClassFilePath() : string
+    {
+        static $classFilePath;
+
+        if ( isset( $classFilePath ) ) {
+            return $classFilePath;
+        }
+
+        try {
+            $reflect              = $this->getReflectionClass();
+            $filePath             = $reflect->getFileName() ?: throw new ValueError();
+            return $classFilePath = normalize_path( $filePath );
+        }
+        catch ( Throwable $exception ) {
+            throw new InvalidArgumentException(
+                message  : "Could not derive directory path from '{$this->className}'.\n {$exception->getMessage()}.",
+                previous : $exception,
+            );
+        }
     }
 
     /**
