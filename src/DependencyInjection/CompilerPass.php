@@ -11,7 +11,9 @@ use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
-use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\{ContainerBuilder, Definition, Reference};
+use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
+use Symfony\Component\DependencyInjection\Loader\Configurator\ReferenceConfigurator;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Yaml\Yaml;
 use UnexpectedValueException;
@@ -46,6 +48,34 @@ abstract class CompilerPass implements CompilerPassInterface
         $this->projectDirectory = $this->setProjectDirectory();
 
         $this->compile( $container );
+    }
+
+    /**
+     * @param Reference|ReferenceConfigurator|string $id
+     * @param bool                                   $nullable
+     *
+     * @return ($nullable is true ? null|Definition : Definition)
+     */
+    final protected function getDefinition(
+        string|ReferenceConfigurator|Reference $id,
+        bool                                   $nullable = false,
+    ) : ?Definition {
+        $id = \is_string( $id ) ? $id : $id->__toString();
+
+        $hasDefinition = $this->container->hasDefinition( $id );
+
+        if ( $hasDefinition ) {
+            return $this->container->getDefinition( $id );
+        }
+
+        if ( $nullable ) {
+            return null;
+        }
+
+        throw new ServiceNotFoundException(
+            id  : $id,
+            msg : $this::class." cannot find required '{$id}' definition.",
+        );
     }
 
     final protected function getParameterPath( string $key, ?string $append = null ) : string
