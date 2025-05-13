@@ -52,12 +52,14 @@ abstract class CompilerPass implements CompilerPassInterface
 
     /**
      * @param Reference|ReferenceConfigurator|string $id
+     * @param false|string                           $newOnMissing
      * @param bool                                   $nullable
      *
      * @return ($nullable is true ? null|Definition : Definition)
      */
     final protected function getDefinition(
         string|ReferenceConfigurator|Reference $id,
+        false|string                           $newOnMissing = false,
         bool                                   $nullable = false,
     ) : ?Definition {
         $id = \is_string( $id ) ? $id : $id->__toString();
@@ -66,6 +68,10 @@ abstract class CompilerPass implements CompilerPassInterface
 
         if ( $hasDefinition ) {
             return $this->container->getDefinition( $id );
+        }
+
+        if ( $newOnMissing ) {
+            return new Definition( $newOnMissing );
         }
 
         if ( $nullable ) {

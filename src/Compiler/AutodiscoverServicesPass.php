@@ -6,7 +6,7 @@ namespace Core\Symfony\Compiler;
 
 use Core\Symfony\Console\ListReport;
 use Core\Symfony\DependencyInjection\{Autodiscover, CompilerPass};
-use Symfony\Component\DependencyInjection\{ContainerBuilder, Definition};
+use Symfony\Component\DependencyInjection\{ContainerBuilder};
 use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Support\{ClassFinder, ClassInfo};
@@ -18,7 +18,7 @@ final class AutodiscoverServicesPass extends CompilerPass
     /** @var array<class-string, class-string> */
     protected array $classMap = [];
 
-    /** @var Autodiscover[] */
+    /** @var Autodiscover<object>[] */
     protected array $autodiscover = [];
 
     private readonly ListReport $report;
@@ -32,14 +32,6 @@ final class AutodiscoverServicesPass extends CompilerPass
             ->autodiscover();
 
         $this->report->output();
-    }
-
-    protected function getDefinition( string $serviceId, string $className ) : Definition
-    {
-        if ( $this->container->hasDefinition( $serviceId ) ) {
-            return $this->container->getDefinition( $serviceId );
-        }
-        return new Definition( $className );
     }
 
     private function autodiscover() : self
