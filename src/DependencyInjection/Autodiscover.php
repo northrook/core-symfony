@@ -102,8 +102,6 @@ class Autodiscover
     }
 
     /**
-     * @internal
-     *
      * @param class-string<T> $className
      *
      * @return self<T>
