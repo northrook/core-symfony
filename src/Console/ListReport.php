@@ -49,9 +49,9 @@ final class ListReport
         $this->items[] = $type.$message;
     }
 
-    public function line( string $message, int $indnet = 3) :void
+    public function line( string $message, int $indnet = 3 ) : void
     {
-        if( $indnet ){
+        if ( $indnet ) {
             $message = \str_repeat( ' ', $indnet ).$message;
         }
 

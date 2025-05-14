@@ -106,9 +106,9 @@ class Autodiscover
      *
      * @param class-string<T> $className
      *
-     * @return void
+     * @return self<T>
      */
-    final public function registerService( string $className ) : void
+    final public function configure( string $className ) : self
     {
         \assert(
             \class_exists( $className ),
@@ -116,7 +116,8 @@ class Autodiscover
         );
         $this->className ??= $className;
         $this->serviceId ??= $this->serviceId();
-        $this->register();
+
+        return $this;
     }
 
     /**

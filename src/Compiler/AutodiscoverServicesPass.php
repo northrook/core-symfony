@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace Core\Symfony\Compiler;
 
+use Core\Exception\{NotSupportedException};
 use Core\Symfony\Console\ListReport;
 use Core\Symfony\DependencyInjection\{Autodiscover, CompilerPass};
 use Symfony\Component\DependencyInjection\{ContainerBuilder};
 use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Support\{ClassFinder, ClassInfo};
-use LogicException, BadMethodCallException;
+use LogicException;
 use ReflectionAttribute, ReflectionClass;
 
 final class AutodiscoverServicesPass extends CompilerPass
@@ -113,7 +114,7 @@ final class AutodiscoverServicesPass extends CompilerPass
 
             if ( $autodiscovered->constructor !== null ) {
                 // TODO: Autoconfigure::$config->constructor
-                throw new BadMethodCallException( 'Autoconfigure::$config->constructor Not implemented' );
+                throw new NotSupportedException( 'Autoconfigure::$config->constructor Not implemented' );
             }
 
             // null = AUTO
@@ -186,10 +187,10 @@ final class AutodiscoverServicesPass extends CompilerPass
                 );
             }
 
-            /** @var Autodiscover $autodiscover */
+            /** @var Autodiscover<object> $autodiscover */
             $autodiscover = $attributes->newInstance();
 
-            $autodiscover->registerService( $className );
+            $autodiscover->configure( $className );
 
             $this->autodiscover[$className] = $autodiscover;
         }
