@@ -18,7 +18,6 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Yaml\Yaml;
 use UnexpectedValueException;
 use function Support\normalize_path;
-use const Support\INFER;
 
 /**
  * Compiler pass abstraction layer for handling config files.
@@ -120,34 +119,42 @@ abstract class CompilerPass implements CompilerPassInterface
     }
 
     /**
-     * @param null|false|string[] $services [AUTO]
+     * @param ?string $subclassOf
+     * @param bool    $hasDefinition
      *
-     * @return array<int, class-string>
+     * @return class-string[]
      */
-    final protected function getDeclaredClasses( null|false|array $services = INFER ) : array
-    {
-        if ( $services === INFER ) {
-            $services = $this->container->getServiceIds();
-        }
-
-        if ( $services === false ) {
-            $services = [];
-        }
-
-        return \array_values(
+    final protected function getDeclaredClasses(
+        ?string $subclassOf = null,
+        bool    $hasDefinition = false,
+    ) : array {
+        $declaredClasses = \array_values(
             \array_unique(
                 [
                     ...\get_declared_classes(),
                     ...\array_filter(
-                        $services,
-                        static fn( $className ) => \class_exists(
-                            $className,
-                            false,
-                        ),
+                        $this->container->getServiceIds(),
+                        static fn( $class ) => \class_exists( $class, false ),
                     ),
                 ],
             ),
         );
+
+        if ( $subclassOf ) {
+            $declaredClasses = \array_filter(
+                $declaredClasses,
+                fn( $class ) => \is_subclass_of( $class, $subclassOf ),
+            );
+        }
+
+        if ( $hasDefinition ) {
+            $declaredClasses = \array_filter(
+                $declaredClasses,
+                [$this->container, 'hasDefinition'],
+            );
+        }
+
+        return $declaredClasses;
     }
 
     protected function path( string $fromProjectDir ) : Path
