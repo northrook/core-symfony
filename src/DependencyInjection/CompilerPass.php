@@ -6,7 +6,7 @@ namespace Core\Symfony\DependencyInjection;
 
 use Core\Pathfinder\Path;
 use JetBrains\PhpStorm\Language;
-use Support\Time;
+use Support\{ClassFinder, Time};
 use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Style\SymfonyStyle;
@@ -119,26 +119,37 @@ abstract class CompilerPass implements CompilerPassInterface
     }
 
     /**
+     * @param ?string $inDirectory
      * @param ?string $subclassOf
      * @param bool    $hasDefinition
      *
      * @return class-string[]
      */
     final protected function getDeclaredClasses(
+        ?string $inDirectory = null,
         ?string $subclassOf = null,
         bool    $hasDefinition = false,
     ) : array {
-        $declaredClasses = \array_values(
-            \array_unique(
-                [
-                    ...\get_declared_classes(),
-                    ...\array_filter(
-                        $this->container->getServiceIds(),
-                        static fn( $class ) => \class_exists( $class, false ),
-                    ),
-                ],
-            ),
-        );
+        if ( $inDirectory ) {
+            $declaredClasses = [];
+
+            foreach ( ClassFinder::scan( $inDirectory ) as $class ) {
+                $declaredClasses[] = $class->className;
+            }
+        }
+        else {
+            $declaredClasses = \array_values(
+                \array_unique(
+                    [
+                        ...\get_declared_classes(),
+                        ...\array_filter(
+                            $this->container->getServiceIds(),
+                            static fn( $class ) => \class_exists( $class, false ),
+                        ),
+                    ],
+                ),
+            );
+        }
 
         if ( $subclassOf ) {
             $declaredClasses = \array_filter(

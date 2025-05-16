@@ -12,7 +12,6 @@ use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Support\{ClassFinder, ClassInfo};
 use LogicException;
-use ReflectionAttribute, ReflectionClass;
 
 final class AutodiscoverServicesPass extends CompilerPass
 {
@@ -147,52 +146,31 @@ final class AutodiscoverServicesPass extends CompilerPass
 
     private function autodiscoverAnnotatedClasses() : self
     {
-        $discover = new ClassFinder();
-
-        $discover
-            ->scan( "{$this->projectDirectory}/src" )
-            ->scan(
-                "{$this->projectDirectory}/vendor",
-                'bin',
-                'doctrine',
-                'composer',
-                'latte',
-                'monolog',
-                'psr',
-                'symfony',
-                'tempest',
-                'twig',
-            );
-
-        foreach ( $discover->getFoundClasses() as $className ) {
-            if ( ! \class_exists( $className ) ) {
-                $this->console->error( [__METHOD__, "Class {$className} does not exist."] );
+        foreach (
+            ClassFinder::scan(
+                "{$this->projectDirectory}/src",
+                "{$this->projectDirectory}/vendor/northrook/",
+            )
+                ->withAttribute( Autodiscover::class ) as $class
+        ) {
+            if ( ! $class->exists ) {
+                $this->console->error( [__METHOD__, "Class {$class} does not exist."] );
 
                 continue;
             }
 
-            $reflection = new ReflectionClass( $className );
-            $flags      = ReflectionAttribute::IS_INSTANCEOF;
-            $attributes = $reflection->getAttributes( Autodiscover::class, $flags );
+            $autodiscover = $class->getAttribute( Autodiscover::class );
 
-            if ( empty( $attributes ) ) {
+            if ( ! $autodiscover ) {
                 continue;
             }
-
-            $attributes = \array_pop( $attributes );
-
-            if ( $reflection->getAttributes( Autoconfigure::class, $flags ) ) {
+            if ( $class->hasAttribute( Autoconfigure::class ) ) {
                 throw new LogicException(
-                    "#[Autodiscover] error for {$className}; cannot use #[Autoconfigure] as well.",
+                    "#[Autodiscover] error for {$class}; cannot use #[Autoconfigure] as well.",
                 );
             }
 
-            /** @var Autodiscover<object> $autodiscover */
-            $autodiscover = $attributes->newInstance();
-
-            $autodiscover->configure( $className );
-
-            $this->autodiscover[$className] = $autodiscover;
+            $this->autodiscover[$class->className] = $autodiscover->configure( $class->className );
         }
 
         return $this;

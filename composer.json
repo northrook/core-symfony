@@ -26,7 +26,8 @@
     "northrook/logger": "dev-main",
     "northrook/pathfinder": "dev-main",
     "northrook/support": "dev-main",
-    "northrook/clerk": "dev-main"
+    "northrook/clerk": "dev-main",
+    "northrook/php-class-finder": "dev-main"
   },
   "require-dev": {
     "northrook/dev": "dev-main"
