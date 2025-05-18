@@ -136,7 +136,7 @@ abstract class CompilerPass implements CompilerPassInterface
         $discoveredClasses = \array_filter(
             $inDirectory ? ClassFinder::scan( $inDirectory )->getArray()
                         : [...\get_declared_classes(), ...$this->container->getServiceIds()],
-            static fn( $class ) => ! \class_exists( (string) $class ),
+            static fn( $class ) => \class_exists( (string) $class ),
         );
         $declaredClasses = [];
 
