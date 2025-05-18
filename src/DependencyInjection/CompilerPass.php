@@ -58,7 +58,7 @@ abstract class CompilerPass implements CompilerPassInterface
      */
     final protected function getDefinition(
         string|ReferenceConfigurator|Reference $id,
-        false|string                           $newOnMissing = false,
+        bool|string                            $newOnMissing = false,
         bool                                   $nullable = false,
     ) : ?Definition {
         $id = \is_string( $id ) ? $id : $id->__toString();
@@ -69,8 +69,8 @@ abstract class CompilerPass implements CompilerPassInterface
             return $this->container->getDefinition( $id );
         }
 
-        if ( $newOnMissing ) {
-            return new Definition( $newOnMissing );
+        if ( $newOnMissing !== false ) {
+            return new Definition( $newOnMissing === true ? $id : $newOnMissing );
         }
 
         if ( $nullable ) {
@@ -130,42 +130,28 @@ abstract class CompilerPass implements CompilerPassInterface
         ?string $subclassOf = null,
         bool    $hasDefinition = false,
     ) : array {
-        if ( $inDirectory ) {
-            $declaredClasses = [];
+        $declaredClasses = [];
 
-            foreach ( ClassFinder::scan( $inDirectory ) as $class ) {
-                $declaredClasses[] = $class->className;
+        foreach ( $inDirectory
+                ? ClassFinder::scan( $inDirectory )
+                : [...\get_declared_classes(), ...$this->container->getServiceIds()] as $class ) {
+            //
+            $class = (string) $class;
+
+            \assert( \class_exists( $class, false ) );
+
+            if ( $subclassOf && ! \is_subclass_of( $class, $subclassOf ) ) {
+                continue;
             }
-        }
-        else {
-            $declaredClasses = \array_values(
-                \array_unique(
-                    [
-                        ...\get_declared_classes(),
-                        ...\array_filter(
-                            $this->container->getServiceIds(),
-                            static fn( $class ) => \class_exists( $class, false ),
-                        ),
-                    ],
-                ),
-            );
+
+            if ( $hasDefinition && ! $this->container->hasDefinition( $class ) ) {
+                continue;
+            }
+
+            $declaredClasses[$class] = true;
         }
 
-        if ( $subclassOf ) {
-            $declaredClasses = \array_filter(
-                $declaredClasses,
-                fn( $class ) => \is_subclass_of( $class, $subclassOf ),
-            );
-        }
-
-        if ( $hasDefinition ) {
-            $declaredClasses = \array_filter(
-                $declaredClasses,
-                [$this->container, 'hasDefinition'],
-            );
-        }
-
-        return $declaredClasses;
+        return \array_keys( $declaredClasses );
     }
 
     protected function path( string $fromProjectDir ) : Path

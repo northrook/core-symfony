@@ -4,16 +4,16 @@ declare(strict_types=1);
 
 namespace Core\Symfony\DependencyInjection;
 
-use JetBrains\PhpStorm\Deprecated;
+use Core\Interface\SettingsProviderInterface;
 
 trait SettingsAccessor
 {
-    // protected SettingsProvider $settings;
+    protected readonly SettingsProviderInterface $settings;
 
-    private const array DEFAULTS = [
-        'auth.onboarding' => true,
-        'toast.timeout'   => 6_400,
-    ];
+    final public function setSettingsProvider( SettingsProviderInterface $provider ) : void
+    {
+        $this->settings = $provider;
+    }
 
     /**
      * @template Setting of null|array<array-key, scalar>|scalar
@@ -28,19 +28,6 @@ trait SettingsAccessor
         string                           $key,
         null|array|bool|float|int|string $default,
     ) : null|array|bool|float|int|string {
-        return self::DEFAULTS[$key] ?? $default;
-    }
-
-    /**
-     * @internal
-     *
-     * @param string $get
-     *
-     * @return bool|string
-     */
-    #[Deprecated( 'Use getSetting() instead' )]
-    final protected function settings( string $get ) : string|bool
-    {
-        return self::DEFAULTS[$get] ?? false;
+        return $this->settings->get( $key, $default );
     }
 }
