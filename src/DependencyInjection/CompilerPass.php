@@ -130,16 +130,18 @@ abstract class CompilerPass implements CompilerPassInterface
         ?string $subclassOf = null,
         bool    $hasDefinition = false,
     ) : array {
+        /**
+         * @var class-string[] $discoveredClasses
+         */
+        $discoveredClasses = \array_filter(
+            $inDirectory ? ClassFinder::scan( $inDirectory )->getArray()
+                        : [...\get_declared_classes(), ...$this->container->getServiceIds()],
+            static fn( $class ) => ! \class_exists( (string) $class ),
+        );
         $declaredClasses = [];
 
-        foreach ( $inDirectory
-                ? ClassFinder::scan( $inDirectory )
-                : [...\get_declared_classes(), ...$this->container->getServiceIds()] as $class ) {
-            //
+        foreach ( $discoveredClasses as $class ) {
             $class = (string) $class;
-
-            \assert( \class_exists( $class, false ) );
-
             if ( $subclassOf && ! \is_subclass_of( $class, $subclassOf ) ) {
                 continue;
             }
