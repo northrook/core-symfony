@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Core\Symfony\DependencyInjection;
 
 use Core\Interface\SettingsProviderInterface;
+use JetBrains\PhpStorm\Deprecated;
 
+#[Deprecated]
 trait SettingsAccessor
 {
     protected readonly SettingsProviderInterface $settings;
