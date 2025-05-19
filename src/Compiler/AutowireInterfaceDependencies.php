@@ -107,7 +107,7 @@ final class AutowireInterfaceDependencies extends CompilerPass
                 }
             }
 
-            if ( $callRegistered ) {
+            if ( $this->verbose && $callRegistered ) {
                 $this->report->warning( 'setLogger already set for: '.$service );
 
                 continue;

@@ -32,6 +32,8 @@ abstract class CompilerPass implements CompilerPassInterface
 
     protected readonly ParameterBagInterface $parameterBag;
 
+    protected bool $verbose = false;
+
     abstract public function compile( ContainerBuilder $container ) : void;
 
     public static function placeholder( mixed $type ) : string
