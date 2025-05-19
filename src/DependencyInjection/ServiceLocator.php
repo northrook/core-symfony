@@ -4,15 +4,17 @@ declare(strict_types=1);
 
 namespace Core\Symfony\DependencyInjection;
 
+use JetBrains\PhpStorm\Deprecated;
 use Psr\Log\LoggerInterface;
 use Core\Symfony\Exception\ServiceContainerException;
 use Symfony\Component\DependencyInjection as Container;
-use Symfony\Component\HttpFoundation\{Request, RequestStack};
+use Symfony\Component\HttpFoundation\{Request};
 use Throwable;
 
 /**
  * @author Martin Nielsen <mn@northrook.com>
  */
+#[Deprecated]
 trait ServiceLocator
 {
     protected readonly Container\ServiceLocator $serviceLocator;
@@ -31,8 +33,9 @@ trait ServiceLocator
     {
         try {
             $service = match ( $get ) {
-                Request::class => $this->serviceLocator->get( RequestStack::class )->getCurrentRequest(),
-                default        => $this->serviceLocator->get( $get ),
+                Request::class => $this->serviceLocator->get( \Symfony\Component\HttpFoundation\RequestStack::class )
+                    ->getCurrentRequest(),
+                default => $this->serviceLocator->get( $get ),
             };
 
             \assert( $service instanceof $get );

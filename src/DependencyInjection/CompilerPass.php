@@ -20,7 +20,7 @@ use UnexpectedValueException;
 use function Support\normalize_path;
 
 /**
- * Compiler pass abstraction layer for handling config files.
+ * {@see CompilerPassInterface} abstraction layer for handling config files.
  */
 abstract class CompilerPass implements CompilerPassInterface
 {

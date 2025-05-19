@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Core\Symfony\DependencyInjection;
 
 use Core\Symfony\Interface\ServiceContainerInterface;
+use JetBrains\PhpStorm\Deprecated;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
@@ -13,6 +14,7 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
  *
  * @author Martin Nielsen <mn@northrook.com>
  */
+#[Deprecated]
 trait ServiceContainer
 {
     use SetServiceLocator;
