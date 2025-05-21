@@ -53,7 +53,7 @@ abstract class CompilerPass implements CompilerPassInterface
 
     /**
      * @param Reference|ReferenceConfigurator|string $id
-     * @param false|string                           $newOnMissing
+     * @param bool|string                            $newOnMissing
      * @param bool                                   $nullable
      *
      * @return ($nullable is true ? null|Definition : Definition)
