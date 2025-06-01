@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Core\Symfony\DependencyInjection;
 
 use Attribute;
+use JetBrains\PhpStorm\Deprecated;
 use Symfony\Component\DependencyInjection\Argument\TaggedIteratorArgument;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ReferenceConfigurator;
 use function Support\normalize_path;
@@ -18,6 +19,7 @@ use const Support\{AUTO, INFER};
  * @template T of object
  */
 #[Attribute( Attribute::TARGET_CLASS )]
+#[Deprecated]
 class Autodiscover
 {
     /** @var class-string<T> */
