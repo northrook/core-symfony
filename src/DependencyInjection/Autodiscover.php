@@ -19,7 +19,10 @@ use const Support\{AUTO, INFER};
  * @template T of object
  */
 #[Attribute( Attribute::TARGET_CLASS )]
-#[Deprecated]
+#[Deprecated(
+    reason      : 'Now part of Core',
+    replacement : \Core\Compiler\Autodiscover::class,
+)]
 class Autodiscover
 {
     /** @var class-string<T> */
